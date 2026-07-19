@@ -242,23 +242,33 @@ function callGemini(payload) {
   }
 
   const rawText = JSON.parse(response.getContentText())
-    ?.candidates?.[0]?.content?.parts?.[0]?.text
-    ?.trim();
+    ?.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!rawText) {
     Logger.log('Gemini returned empty content');
     return null;
   }
 
+  let cleanText = rawText.trim();
+  // Strip markdown code block fences if present (e.g. ```json ... ```)
+  if (cleanText.startsWith('```')) {
+    const lines = cleanText.split('\n');
+    if (lines.length > 2) {
+      cleanText = lines.slice(1, -1).join('\n').trim();
+    } else {
+      cleanText = cleanText.replace(/```[a-z]*/gi, '').trim();
+    }
+  }
+
   try {
-    const parsed = JSON.parse(rawText);
+    const parsed = JSON.parse(cleanText);
     if (parsed.error) {
       Logger.log('Gemini could not parse expense: ' + parsed.error);
       return null;
     }
     return parsed;
   } catch (_) {
-    Logger.log('Failed to parse Gemini JSON output: ' + rawText);
+    Logger.log('Failed to parse Gemini JSON output. Raw: ' + rawText + ' | Cleaned: ' + cleanText);
     return null;
   }
 }
