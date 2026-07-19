@@ -21,6 +21,18 @@
  */
 function doPost(e) {
   try {
+    // Debug logging to see if doPost is called
+    try {
+      const dbSheet = SpreadsheetApp.openById(PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID'));
+      let logSheet = dbSheet.getSheetByName('Logs');
+      if (!logSheet) {
+        logSheet = dbSheet.insertSheet('Logs');
+      }
+      logSheet.appendRow([new Date().toISOString(), 'doPost hit', JSON.stringify(e)]);
+    } catch (logErr) {
+      // Ignore logger errors
+    }
+
     const body = JSON.parse(e.postData.contents);
     handleUpdate(body);
   } catch (err) {
