@@ -23,12 +23,15 @@ function doPost(e) {
   try {
     // Debug logging to see if doPost is called
     try {
-      const dbSheet = SpreadsheetApp.getActiveSpreadsheet();
-      let logSheet = dbSheet.getSheetByName('Logs');
-      if (!logSheet) {
-        logSheet = dbSheet.insertSheet('Logs');
+      const spreadsheetId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
+      if (spreadsheetId) {
+        const dbSheet = SpreadsheetApp.openById(spreadsheetId);
+        let logSheet = dbSheet.getSheetByName('Logs');
+        if (!logSheet) {
+          logSheet = dbSheet.insertSheet('Logs');
+        }
+        logSheet.appendRow([new Date().toISOString(), 'doPost hit', JSON.stringify(e)]);
       }
-      logSheet.appendRow([new Date().toISOString(), 'doPost hit', JSON.stringify(e)]);
     } catch (logErr) {
       // Ignore logger errors
     }
@@ -271,12 +274,12 @@ function callGemini(payload) {
  */
 function appendToSheet(expense) {
   const sheet = SpreadsheetApp
-    .getActiveSpreadsheet()
+    .openById(CONFIG.SPREADSHEET_ID)
     .getSheetByName(CONFIG.SHEET_NAME);
 
   if (!sheet) {
     throw new Error(
-      'Sheet "' + CONFIG.SHEET_NAME + '" not found in spreadsheet.'
+      'Sheet "' + CONFIG.SHEET_NAME + '" not found in spreadsheet ' + CONFIG.SPREADSHEET_ID
     );
   }
 

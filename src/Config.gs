@@ -35,6 +35,9 @@ const CONFIG = {
   /** Google Gemini API key (from Google AI Studio) */
   get GEMINI_API_KEY()      { return this.get('GEMINI_API_KEY'); },
 
+  /** Google Spreadsheet ID (from the sheet URL) */
+  get SPREADSHEET_ID()      { return this.get('SPREADSHEET_ID'); },
+
   /** Name of the sheet tab used as the transaction database */
   SHEET_NAME: 'Transactions',
 
