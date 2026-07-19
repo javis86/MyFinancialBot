@@ -42,6 +42,7 @@ function doPost(e) {
     // Log but swallow all errors — never return a non-200 to Telegram
     Logger.log('doPost error: ' + err.message);
   }
+  return HtmlService.createHtmlOutput('OK');
 }
 
 // ─── Update Router ────────────────────────────────────────────────────────────
