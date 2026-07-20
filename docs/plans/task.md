@@ -12,3 +12,5 @@
 | 7 | Webhook Initialization | not_started |
 | 8 | Smoke Test & End-to-End Verification | not_started |
 | 9 | Rename bot/docs references to MyFinancialBot | ✅ done |
+| 10 | Move EXTRACTION_SYSTEM_PROMPT to src/Prompt.gs | ✅ done |
+
