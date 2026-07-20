@@ -31,7 +31,7 @@ PAYLOAD=$(cat <<'EOF'
   "message": {
     "message_id": 1,
     "chat": { "id": 123456789, "type": "private" },
-    "from": { "id": 123456789, "first_name": "Javier", "is_bot": false },
+    "from": { "id": 123456789, "first_name": "User", "is_bot": false },
     "date": 1700000000,
     "text": "Spent $45 on internet at Movistar"
   }

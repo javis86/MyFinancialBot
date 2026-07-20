@@ -11,3 +11,4 @@
 | 6 | Deploy as Web App (Manual) | ⏳ awaiting you |
 | 7 | Webhook Initialization | not_started |
 | 8 | Smoke Test & End-to-End Verification | not_started |
+| 9 | Rename bot/docs references from Javier to MyFinancialBot | ✅ done |

@@ -148,7 +148,7 @@ To communicate with the app, we need to provision a new Telegram bot and obtain 
 
 1.  Open Telegram and search for the **@BotFather** user (ensure it has the verified blue checkmark).
 2.  Start a chat and send the command: `/newbot`
-3.  **Provide a Name:** Enter a display name for your bot (e.g., `Developer's Expense Tracker`).
+3.  **Provide a Name:** Enter a display name for your bot (e.g., `My Financial Expense Tracker`).
 4.  **Provide a Username:** Enter a unique username ending in "bot" (e.g., `MyFinancialBot`).
 5.  **Save the Token:** BotFather will return an HTTP API Token (e.g., `1234567890:ABCDefGhIjKlMnOpQrStUvWxYz`). 
     *   *Important:* Keep this token secure. We will refer to this as the `TELEGRAM_BOT_TOKEN`.

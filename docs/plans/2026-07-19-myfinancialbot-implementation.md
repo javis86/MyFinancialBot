@@ -23,7 +23,7 @@
 **Step 1: Initialize git repo**
 
 ```bash
-cd /home/javier/projects/misc/myfinancialbot
+cd /path/to/myfinancialbot
 git init
 ```
 
@@ -484,7 +484,7 @@ PAYLOAD=$(cat <<'EOF'
   "message": {
     "message_id": 1,
     "chat": { "id": 123456789, "type": "private" },
-    "from": { "id": 123456789, "first_name": "Javier" },
+    "from": { "id": 123456789, "first_name": "User" },
     "date": 1700000000,
     "text": "Spent $45 on internet at Movistar"
   }
