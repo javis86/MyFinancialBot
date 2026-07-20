@@ -47,10 +47,12 @@
 | Component | File Path | Role & Function |
 |-----------|-----------|-----------------|
 | **Configuration Module** | [`src/Config.gs`](src/Config.gs) | Centralized configuration accessor. Reads secrets (`TELEGRAM_BOT_TOKEN`, `GEMINI_API_KEY`, `SPREADSHEET_ID`) from Apps Script `ScriptProperties` at runtime. |
+| **System Prompt Module** | [`src/Prompt.gs`](src/Prompt.gs) | System prompt definitions (`EXTRACTION_SYSTEM_PROMPT`) instructing Gemini AI on multilingual expense extraction and strict JSON output schema. |
 | **Main Webhook & Controller** | [`src/Code.gs`](src/Code.gs) | Implements `doPost(e)` HTTP endpoint, update router, Telegram API message/photo downloader, Gemini AI client, response JSON sanitizer, and Sheets logger. |
 | **Smoke Test Suite** | [`tests/smoke-test.sh`](tests/smoke-test.sh) | Automated Bash test script that sends synthetic Telegram payloads via `curl` to test endpoint availability and status codes. |
 | **Implementation Plan** | [`docs/plans/2026-07-19-myfinancialbot-implementation.md`](docs/plans/2026-07-19-myfinancialbot-implementation.md) | Granular implementation specification detailing task breakdowns, code chunks, verification commands, and file paths. |
 | **Task Tracker** | [`docs/plans/task.md`](docs/plans/task.md) | Live execution checklist used to track task progress and review state. |
+
 
 ---
 
@@ -136,10 +138,11 @@ Follow these verified steps to deploy your own instance.
 ### Phase 4: Google Apps Script Configuration
 
 1. In your Google Sheet, click **Extensions** > **Apps Script**.
-2. Create two script files in the editor:
+2. Create three script files in the editor:
    - **`Config.gs`**: Paste the code from [`src/Config.gs`](src/Config.gs).
+   - **`Prompt.gs`**: Paste the code from [`src/Prompt.gs`](src/Prompt.gs).
    - **`Code.gs`**: Paste the code from [`src/Code.gs`](src/Code.gs).
-   > ⚠️ **Important**: Google Apps Script shares a single global namespace across files. Do **not** declare `const CONFIG` in both files.
+   > ⚠️ **Important**: Google Apps Script shares a single global namespace across files. Do **not** declare variables with the same name across multiple files.
 
 3. Set up environment variables (Script Properties):
    - Go to ⚙️ **Project Settings** (left sidebar) > **Script Properties** > **Add script property**.
