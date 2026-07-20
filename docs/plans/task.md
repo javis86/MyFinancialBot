@@ -8,8 +8,8 @@
 | 3 | Google Sheets Database Setup (Manual) | ⏳ awaiting you |
 | 4 | Clone & Adapt MoneyNeBot Backend Code | ✅ done |
 | 5 | Google Apps Script Project Setup (Manual) | ⏳ awaiting you |
-| 6 | Deploy as Web App (Manual) | ⏳ awaiting you |
-| 7 | Webhook Initialization | not_started |
+| 6 | Deploy as Web App (Manual) | ✅ done |
+| 7 | Webhook Initialization | ✅ done |
 | 8 | Smoke Test & End-to-End Verification | not_started |
 | 9 | Rename bot/docs references to MyFinancialBot | ✅ done |
 | 10 | Move EXTRACTION_SYSTEM_PROMPT to src/Prompt.gs | ✅ done |
