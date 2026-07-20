@@ -1,66 +1,148 @@
-# MyFinancialBot
+# 💸 MyFinancialBot
 
-> Zero-cost, serverless expense tracker bot for Telegram.
+> A zero-cost, serverless Telegram bot for managing personal expenses using Google Apps Script, Google Gemini AI (NLP & Vision OCR), and Google Sheets as a database.
 
-## Architecture
+---
+
+## 📌 Context & Overview
+
+**MyFinancialBot** is a lightweight, zero-maintenance personal finance assistant. You can send free-form text messages (e.g., *"Spent $45 on internet at Movistar"*) or photo receipts directly via Telegram. The bot uses Google's Gemini AI to extract structured expense details and logs them instantly to a Google Sheet.
+
+### Features
+- 💬 **Natural Language Processing**: Log expenses by typing naturally in English or Spanish.
+- 📸 **Receipt OCR**: Upload receipt photos; Gemini Vision automatically extracts vendor, total amount, currency, and date.
+- 🌐 **Bilingual Support**: Seamlessly processes both English and Spanish queries.
+- 📊 **Spreadsheet Backend**: Stores all transactions neatly inside a customizable Google Sheet.
+- 💰 **100% Free**: Operates entirely within free tiers (Google Apps Script, Google Sheets, Google Gemini API).
+
+---
+
+## 🏗️ Architecture & Data Flow
 
 ```
-Telegram App → Telegram Bot API → Google Apps Script (Webhook)
-                                         ↓
-                              Google Gemini API (NLP + OCR)
-                                         ↓
-                              Google Sheets (Database)
+┌─────────────────┐       POST (Webhook)       ┌────────────────────────┐
+│  Telegram App   │ ─────────────────────────> │   Google Apps Script   │
+│ (User Interface)│ <───────────────────────── │    Web App (doPost)    │
+└─────────────────┘      Markdown Reply        └───────────┬────────────┘
+                                                           │
+                                             Calls API     │   Appends Row
+                                             for NLP/OCR   │   to Spreadsheet
+                                                           ▼
+                                               ┌────────────────────────┐
+                                               │   Google Gemini API    │
+                                               │   (gemini-2.5-flash)   │
+                                               └────────────────────────┘
+                                                           │
+                                                           ▼
+                                               ┌────────────────────────┐
+                                               │     Google Sheets      │
+                                               │  (Transactions Tab)    │
+                                               └────────────────────────┘
 ```
 
-- **Frontend / UI:** Telegram App (Mobile + Desktop)
-- **Backend / Logic:** Google Apps Script (serverless, no hosting fees)
-- **AI Processing:** Google Gemini `gemini-1.5-flash` (bilingual EN/ES, text + receipt OCR)
-- **Database:** Google Sheets (`Transactions` tab)
+---
 
-## Supported Input
+## 🛠️ Step-by-Step Setup Guide ("Golden Steps")
 
-- 💬 **Text messages** — e.g. `"Spent $45 on internet at Movistar"` or `"Pagué $1200 en Carrefour"`
-- 📸 **Receipt photos** — Gemini Vision extracts date, amount, merchant automatically
-- 🌐 **Bilingual** — English and Spanish supported natively
+Follow these verified steps to deploy your own instance.
 
-## Transaction Fields
+### Phase 1: Telegram Bot Provisioning
+1. Open Telegram and start a chat with **[@BotFather](https://t.me/BotFather)**.
+2. Send `/newbot` and follow the prompts:
+   - **Display Name**: `My Financial Bot`
+   - **Username**: `MyFinancialBot` (must end in `bot`).
+3. Save the HTTP API Token provided (referred to as `TELEGRAM_BOT_TOKEN`).
 
-| Column | Description |
-|--------|-------------|
-| Timestamp | When the entry was logged (ISO 8601) |
-| Date | Expense date extracted by Gemini |
-| Amount | Numeric amount |
-| Currency | ISO code (USD, ARS, etc.) |
-| Category | Food, Transport, Internet, Utilities, Shopping, Health, Entertainment, Other |
-| Merchant | Store or vendor name |
-| Notes | Any extra context |
+---
 
-## Quick Setup
+### Phase 2: Google Gemini API Key
+1. Go to **[Google AI Studio](https://aistudio.google.com/)**.
+2. Click **Get API Key** → **Create API Key in new project**.
+3. Save the key (referred to as `GEMINI_API_KEY`).
+   > 💡 **Model Note**: Use `gemini-2.5-flash`. Model `gemini-1.5-flash` is deprecated on `v1beta`, and `gemini-2.0-flash` may encounter rate limits (0 requests) on certain free-tier API keys.
 
-See [docs/plans/2026-07-19-myfinancialbot-implementation.md](docs/plans/2026-07-19-myfinancialbot-implementation.md) for the full step-by-step implementation plan.
+---
 
-**High-level steps:**
-1. Create Telegram bot via BotFather
-2. Get Gemini API key from Google AI Studio
-3. Create Google Sheet with `Transactions` tab
-4. Paste `src/Config.gs` + `src/Code.gs` into Google Apps Script editor
-5. Set Script Properties (tokens + sheet ID)
-6. Deploy as Web App
-7. Register webhook: `curl "https://api.telegram.org/bot<TOKEN>/setWebhook?url=<WEB_APP_URL>"`
-8. Send `/start` to your bot and test!
+### Phase 3: Google Sheets Setup
+1. Create a new Google Spreadsheet at [sheets.google.com](https://sheets.google.com).
+2. Rename the active sheet tab to **`Transactions`**.
+3. Set up Row 1 with the following header columns (exact spelling/case):
 
-## Testing
+| A | B | C | D | E | F | G |
+|---|---|---|---|---|---|---|
+| `Timestamp` | `Date` | `Amount` | `Currency` | `Category` | `Merchant` | `Notes` |
+
+4. Extract the **Spreadsheet ID** from your browser URL:
+   `https://docs.google.com/spreadsheets/d/`**`<SPREADSHEET_ID>`**`/edit`
+
+---
+
+### Phase 4: Google Apps Script Configuration
+
+1. In your Google Sheet, click **Extensions** > **Apps Script**.
+2. Create two script files in the editor:
+   - **`Config.gs`**: Paste the code from [`src/Config.gs`](src/Config.gs).
+   - **`Code.gs`**: Paste the code from [`src/Code.gs`](src/Code.gs).
+   > ⚠️ **Important**: Google Apps Script shares a single global namespace across files. Do **not** declare `const CONFIG` in both files.
+
+3. Set up environment variables (Script Properties):
+   - Go to ⚙️ **Project Settings** (left sidebar) > **Script Properties** > **Add script property**.
+   - Add the following key-value pairs:
+     - `TELEGRAM_BOT_TOKEN`: `<your_bot_token>`
+     - `GEMINI_API_KEY`: `<your_gemini_api_key>`
+     - `SPREADSHEET_ID`: `<your_spreadsheet_id>`
+
+4. Grant Initial Permissions:
+   - Select the `doPost` function from the top toolbar dropdown and click ▶️ **Run**.
+   - Review and grant permissions when prompted. *(Note: An error regarding `undefined (reading 'postData')` is expected when running manually, but authorization will be saved).*
+
+---
+
+### Phase 5: Web App Deployment
+
+1. Click **Deploy** > **New Deployment** (top right).
+2. Click the gear icon ⚙️ next to "Select type" and choose **Web app**.
+3. Configure settings:
+   - **Description**: `v1 Production`
+   - **Execute as**: `Me (your_email@gmail.com)`
+   - **Who has access**: **`Anyone`** *(Crucial: Allows Telegram servers to send POST webhooks without requiring Google login)*.
+4. Click **Deploy** and copy the resulting **Web App URL** (`https://script.google.com/macros/s/.../exec`).
+
+---
+
+### Phase 6: Webhook Registration
+
+To connect Telegram to your Google Apps Script Web App, run the following command in your terminal or browser (replace placeholders):
 
 ```bash
-source .env
-bash tests/smoke-test.sh
+curl -s "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<WEB_APP_URL>&drop_pending_updates=true"
 ```
 
-## Local Development
+> 💡 **Tip**: Adding `drop_pending_updates=true` clears any clogged or failing message backlog on Telegram's side from previous failed webhook attempts.
 
-The source files in `src/` are version-controlled copies of the Apps Script code.
-After editing, manually paste updated code into the Apps Script editor and redeploy.
+---
 
-## Cost
+## ⚡ Important Lessons & Technical Gotchas
 
-**$0/month.** Everything runs on free Google infrastructure.
+1. **`302 Found` Redirects & `HtmlService`**:
+   - `ContentService.createTextOutput()` can trigger a 302 redirect to `script.googleusercontent.com`, which Telegram webhooks do not follow.
+   - **Solution**: `doPost()` returns `HtmlService.createHtmlOutput('OK')` to respond with a direct `200 OK`.
+
+2. **Gemini Code Block Sanitization**:
+   - Gemini sometimes wraps JSON output in Markdown fences (```json ... ```). The script includes a sanitizer function to strip code fences prior to calling `JSON.parse()`.
+
+3. **Updating Deployment**:
+   - Whenever you update code in Apps Script, edit the existing deployment and select **New Version** under **Deploy > Manage Deployments** to preserve the URL and activate changes.
+
+---
+
+## 🧪 Testing the Bot
+
+1. Open Telegram and search for `@MyFinancialBot`.
+2. Send `/start` to view the welcome message.
+3. Try sending a text message:
+   ```text
+   Spent $45 on internet at Movistar
+   ```
+4. Try sending a photo of a receipt.
+5. Check your Google Sheet under the **`Transactions`** tab to verify that the rows are being appended automatically!
