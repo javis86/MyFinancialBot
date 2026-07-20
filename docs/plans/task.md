@@ -13,4 +13,7 @@
 | 8 | Smoke Test & End-to-End Verification | not_started |
 | 9 | Rename bot/docs references to MyFinancialBot | ✅ done |
 | 10 | Move EXTRACTION_SYSTEM_PROMPT to src/Prompt.gs | ✅ done |
+| 11 | Inject dynamic today date anchor into EXTRACTION_SYSTEM_PROMPT | ✅ done |
+
+
 

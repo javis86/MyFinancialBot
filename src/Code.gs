@@ -157,9 +157,12 @@ function handlePhotoMessage(chatId, message) {
  * @returns {Object|null} Parsed expense object, or null on failure
  */
 function extractExpenseFromText(text) {
+  const prompt = typeof getExtractionSystemPrompt === 'function'
+    ? getExtractionSystemPrompt()
+    : EXTRACTION_SYSTEM_PROMPT;
   return callGemini({
     contents: [{
-      parts: [{ text: EXTRACTION_SYSTEM_PROMPT + '\n\nUser message: ' + text }]
+      parts: [{ text: prompt + '\n\nUser message: ' + text }]
     }],
     generationConfig: { temperature: 0.1 }
   });
@@ -172,16 +175,20 @@ function extractExpenseFromText(text) {
  * @returns {Object|null} Parsed expense object, or null on failure
  */
 function extractExpenseFromImage(base64Image) {
+  const prompt = typeof getExtractionSystemPrompt === 'function'
+    ? getExtractionSystemPrompt()
+    : EXTRACTION_SYSTEM_PROMPT;
   return callGemini({
     contents: [{
       parts: [
-        { text: EXTRACTION_SYSTEM_PROMPT + '\n\nExtract the expense from this receipt image:' },
+        { text: prompt + '\n\nExtract the expense from this receipt image:' },
         { inlineData: { mimeType: 'image/jpeg', data: base64Image } }
       ]
     }],
     generationConfig: { temperature: 0.1 }
   });
 }
+
 
 /**
  * Core Gemini API caller. Sends a generateContent request and parses the JSON response.
@@ -233,6 +240,9 @@ function callGemini(payload) {
     if (parsed.error) {
       Logger.log('Gemini could not parse expense: ' + parsed.error);
       return null;
+    }
+    if (!parsed.date || typeof parsed.date !== 'string') {
+      parsed.date = new Date().toISOString().split('T')[0];
     }
     return parsed;
   } catch (_) {
