@@ -2,12 +2,12 @@
 
 | # | Task | Status |
 |---|------|--------|
-| 0 | Repository Scaffolding | in_progress |
-| 1 | Telegram Bot Creation (Manual) | not_started |
-| 2 | Google Gemini API Key (Manual) | not_started |
-| 3 | Google Sheets Database Setup (Manual) | not_started |
-| 4 | Clone & Adapt MoneyNeBot Backend Code | not_started |
-| 5 | Google Apps Script Project Setup (Manual) | not_started |
-| 6 | Deploy as Web App (Manual) | not_started |
+| 0 | Repository Scaffolding | ✅ done |
+| 1 | Telegram Bot Creation (Manual) | ⏳ awaiting you |
+| 2 | Google Gemini API Key (Manual) | ⏳ awaiting you |
+| 3 | Google Sheets Database Setup (Manual) | ⏳ awaiting you |
+| 4 | Clone & Adapt MoneyNeBot Backend Code | ✅ done |
+| 5 | Google Apps Script Project Setup (Manual) | ⏳ awaiting you |
+| 6 | Deploy as Web App (Manual) | ⏳ awaiting you |
 | 7 | Webhook Initialization | not_started |
 | 8 | Smoke Test & End-to-End Verification | not_started |
