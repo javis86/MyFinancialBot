@@ -38,6 +38,15 @@ const CONFIG = {
   /** Google Spreadsheet ID (from the sheet URL) */
   get SPREADSHEET_ID()      { return this.get('SPREADSHEET_ID'); },
 
+  /** Webhook secret token — must match ?secret= param registered with Telegram setWebhook */
+  get WEBHOOK_SECRET()      { return this.get('WEBHOOK_SECRET'); },
+
+  /** Authorized Telegram chat ID — only this user can interact with the bot */
+  get ALLOWED_CHAT_ID()     { return this.get('ALLOWED_CHAT_ID'); },
+
+  /** When 'true', logs full request payload to Logs sheet. Keep 'false' in production. */
+  get DEBUG_LOGGING()       { return this.get('DEBUG_LOGGING') === 'true'; },
+
   /** Name of the sheet tab used as the transaction database */
   SHEET_NAME: 'Transactions',
 
