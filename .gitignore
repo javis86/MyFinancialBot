@@ -1,7 +1,16 @@
-.env
-*.env.local
+# Environment / secrets — never commit real credentials
+.env*
+!.env.example
+
+# Dependencies
 node_modules/
+
+# OS artifacts
 .DS_Store
+
+# Git worktrees
 .worktrees/
 worktrees/
+
+# Agent config
 .agent/
