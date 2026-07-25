@@ -21,19 +21,39 @@
  */
 function doPost(e) {
   try {
-    // Debug logging to see if doPost is called
+    // ── Gate 1: Webhook secret token validation ──────────────────────────────
+    // Telegram includes ?secret= in the webhook URL we registered.
+    // GAS doPost does not expose request headers, so we use a query parameter.
+    const incomingSecret = e.parameter && e.parameter['secret'];
+    if (incomingSecret !== CONFIG.WEBHOOK_SECRET) {
+      Logger.log('doPost: rejected — invalid or missing webhook secret');
+      return HtmlService.createHtmlOutput('OK'); // Silent drop — no info to attacker
+    }
+
+    // ── Sanitized debug logging ──────────────────────────────────────────────
+    // By default (DEBUG_LOGGING=false): log timestamp, chat_id, msg type only.
+    // Set DEBUG_LOGGING=true in Script Properties to enable full payload logging.
     try {
       const spreadsheetId = PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID');
       if (spreadsheetId) {
         const dbSheet = SpreadsheetApp.openById(spreadsheetId);
         let logSheet = dbSheet.getSheetByName('Logs');
-        if (!logSheet) {
-          logSheet = dbSheet.insertSheet('Logs');
+        if (!logSheet) logSheet = dbSheet.insertSheet('Logs');
+
+        const body = JSON.parse(e.postData.contents);
+        const msgType = body?.message?.photo ? 'photo'
+          : body?.message?.text ? 'text'
+          : 'other';
+        const chatId = body?.message?.chat?.id ?? 'unknown';
+
+        if (CONFIG.DEBUG_LOGGING) {
+          logSheet.appendRow([new Date().toISOString(), 'doPost', chatId, msgType, JSON.stringify(e)]);
+        } else {
+          logSheet.appendRow([new Date().toISOString(), 'doPost', chatId, msgType]);
         }
-        logSheet.appendRow([new Date().toISOString(), 'doPost hit', JSON.stringify(e)]);
       }
     } catch (logErr) {
-      // Ignore logger errors
+      // Ignore logger errors — never block main flow
     }
 
     const body = JSON.parse(e.postData.contents);
