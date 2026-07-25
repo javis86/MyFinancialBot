@@ -80,6 +80,29 @@ function handleUpdate(update) {
 
   const chatId = message.chat.id;
 
+  // ── Gate 2: Owner-only authorization ────────────────────────────────────────
+  // Any chat_id not matching ALLOWED_CHAT_ID is silently dropped.
+  // No reply is sent — this reveals nothing to unauthorized senders.
+  if (String(chatId) !== CONFIG.ALLOWED_CHAT_ID) {
+    Logger.log('handleUpdate: unauthorized chat_id ' + chatId + ' — silent drop');
+    return;
+  }
+
+  // ── Gate 3: Rate limiting — 20 requests per hour ────────────────────────────
+  // Uses CacheService with a 1-hour TTL. Resets automatically each hour.
+  const cache = CacheService.getScriptCache();
+  const rateKey = 'rate_' + chatId;
+  const count = parseInt(cache.get(rateKey) || '0', 10);
+  if (count >= 20) {
+    sendMessage(
+      chatId,
+      '⏳ Too many requests. Try again in an hour.\n' +
+      'Demasiadas solicitudes. Intenta en una hora.'
+    );
+    return;
+  }
+  cache.put(rateKey, String(count + 1), 3600); // increment counter, 1-hour TTL
+
   if (message.photo) {
     handlePhotoMessage(chatId, message);
   } else if (message.text) {
