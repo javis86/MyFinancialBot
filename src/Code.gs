@@ -260,26 +260,50 @@ const VALID_CATEGORIES = new Set([
 function validateExpense(parsed) {
   if (!parsed || typeof parsed !== 'object') return null;
 
+  // Coerce string amount (e.g. "1250.50" or "$1,250.50") to number if string
+  if (typeof parsed.amount === 'string') {
+    const cleaned = parsed.amount.replace(/[^0-9.]/g, '');
+    parsed.amount = parseFloat(cleaned);
+  }
+
   // amount: must be a positive number, capped at 100 million
-  if (typeof parsed.amount !== 'number' || parsed.amount <= 0 || parsed.amount > 1e8) return null;
+  if (typeof parsed.amount !== 'number' || isNaN(parsed.amount) || parsed.amount <= 0 || parsed.amount > 1e8) return null;
 
   // currency: must be exactly 3 uppercase letters (ISO 4217)
   if (typeof parsed.currency !== 'string' || !/^[A-Z]{3}$/.test(parsed.currency)) return null;
 
-  // category: must be one of the defined categories
-  if (typeof parsed.category !== 'string' || !VALID_CATEGORIES.has(parsed.category)) return null;
+  // category: match case-insensitively against VALID_CATEGORIES, fallback to 'Other'
+  if (typeof parsed.category === 'string') {
+    const catLower = parsed.category.trim().toLowerCase();
+    let matched = null;
+    for (const validCat of VALID_CATEGORIES) {
+      if (validCat.toLowerCase() === catLower) {
+        matched = validCat;
+        break;
+      }
+    }
+    parsed.category = matched || 'Other';
+  } else {
+    parsed.category = 'Other';
+  }
 
   // date: must be YYYY-MM-DD format
-  if (typeof parsed.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(parsed.date)) return null;
+  if (typeof parsed.date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(parsed.date)) {
+    parsed.date = new Date().toISOString().split('T')[0];
+  }
 
   // merchant: optional string, max 200 chars
   if (parsed.merchant !== undefined && parsed.merchant !== null) {
-    if (typeof parsed.merchant !== 'string' || parsed.merchant.length > 200) return null;
+    if (typeof parsed.merchant !== 'string' || parsed.merchant.length > 200) {
+      parsed.merchant = String(parsed.merchant).slice(0, 200);
+    }
   }
 
   // notes: optional string, max 500 chars
   if (parsed.notes !== undefined && parsed.notes !== null) {
-    if (typeof parsed.notes !== 'string' || parsed.notes.length > 500) return null;
+    if (typeof parsed.notes !== 'string' || parsed.notes.length > 500) {
+      parsed.notes = String(parsed.notes).slice(0, 500);
+    }
   }
 
   return parsed;
@@ -430,15 +454,25 @@ function downloadFileAsBase64(fileId) {
       'https://api.telegram.org/bot' + CONFIG.TELEGRAM_BOT_TOKEN + '/getFile?file_id=' + fileId
     ).getContentText()
   );
-  const filePath = fileInfo.result.file_path;
+  const filePath = fileInfo.result.file_path || '';
   const fileBlob = UrlFetchApp.fetch(
     'https://api.telegram.org/file/bot' + CONFIG.TELEGRAM_BOT_TOKEN + '/' + filePath
   ).getBlob();
 
-  // Detect actual MIME type from blob — Telegram may send PNG, WebP, or HEIC, not just JPEG
+  let mimeType = fileBlob.getContentType();
+  // Telegram CDN downloads often return 'application/octet-stream'.
+  // Gemini API rejects non-image MIME types in inlineData with HTTP 400.
+  if (!mimeType || mimeType === 'application/octet-stream' || !mimeType.startsWith('image/')) {
+    const ext = filePath.split('.').pop().toLowerCase();
+    if (ext === 'png') mimeType = 'image/png';
+    else if (ext === 'webp') mimeType = 'image/webp';
+    else if (ext === 'heic') mimeType = 'image/heic';
+    else mimeType = 'image/jpeg';
+  }
+
   return {
     data: Utilities.base64Encode(fileBlob.getBytes()),
-    mimeType: fileBlob.getContentType() || 'image/jpeg'
+    mimeType: mimeType
   };
 }
 

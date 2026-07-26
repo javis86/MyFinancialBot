@@ -28,6 +28,8 @@
 | S10 | Update smoke test to pass `?secret=` param | ⬜ todo |
 | S11 | Re-register Telegram webhook with secret param | ⬜ todo |
 | S12 | Deploy updated code + end-to-end verification | ⬜ todo |
+| 12 | Fix Photo OCR handling (MIME type fallback & schema coercion in src/Code.gs) | ✅ done |
+
 
 
 
