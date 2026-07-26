@@ -20,6 +20,12 @@ if [[ -z "${WEB_APP_URL:-}" ]]; then
   exit 1
 fi
 
+if [[ -z "${WEBHOOK_SECRET:-}" ]]; then
+  echo "❌ ERROR: WEBHOOK_SECRET is not set."
+  echo "   Add WEBHOOK_SECRET=<your_secret> to your .env file, then run: source .env"
+  exit 1
+fi
+
 # ─── Build mock payload ───────────────────────────────────────────────────────
 
 # Simulates a real Telegram webhook POST for a text message.
@@ -39,14 +45,16 @@ PAYLOAD=$(cat <<'EOF'
 EOF
 )
 
-# ─── Send request ─────────────────────────────────────────────────────────────
+# ⚠️  IMPORTANT: This test sends a real POST to the PRODUCTION endpoint.
+# It will trigger a real Gemini API call and attempt to log a row to your Sheet.
+# Ensure WEB_APP_URL and WEBHOOK_SECRET are both set in your .env before running.
 
 echo "🚀 Sending mock Telegram webhook to:"
-echo "   ${WEB_APP_URL}"
+echo "   ${WEB_APP_URL}?secret=<hidden>"
 echo ""
 
 HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-  -X POST "${WEB_APP_URL}" \
+  -X POST "${WEB_APP_URL}?secret=${WEBHOOK_SECRET}" \
   -H "Content-Type: application/json" \
   -d "${PAYLOAD}")
 
