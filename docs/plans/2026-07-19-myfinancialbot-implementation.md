@@ -6,7 +6,7 @@
 
 **Architecture:** A Telegram bot receives messages (text or images) and POSTs them via webhook to a Google Apps Script Web App. The script calls Gemini to extract expense fields (date, amount, currency, category, merchant, notes) in either English or Spanish, then appends the row to a Google Sheet. No servers, no monthly fees.
 
-**Tech Stack:** Telegram Bot API · Google Apps Script (GAS) · Google Gemini API (`gemini-1.5-flash`) · Google Sheets · MoneyNeBot (cloned, adapted) · `curl` (smoke tests)
+**Tech Stack:** Telegram Bot API · Google Apps Script (GAS) · Google Gemini API (`gemini-3.6-flash`) · Google Sheets · MoneyNeBot (cloned, adapted) · `curl` (smoke tests)
 
 ---
 
@@ -124,7 +124,7 @@ curl -s \
   | grep -o '"name":"models/gemini[^"]*"' | head -5
 ```
 
-Expected: lines containing model names like `gemini-1.5-flash`.
+Expected: lines containing model names like `gemini-3.6-flash`.
 
 ---
 
@@ -180,7 +180,7 @@ const CONFIG = {
   get GEMINI_API_KEY()      { return this.get('GEMINI_API_KEY'); },
   get SPREADSHEET_ID()      { return this.get('SPREADSHEET_ID'); },
   SHEET_NAME: 'Transactions',
-  GEMINI_MODEL: 'gemini-1.5-flash',
+  GEMINI_MODEL: 'gemini-3.6-flash',
 };
 ```
 
