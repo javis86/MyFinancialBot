@@ -78,44 +78,6 @@ MyFinancialBot implements robust enterprise-grade security controls directly ins
 
 ---
 
-## 🔄 Development Process & Methodology
-
-This project was built following a disciplined, single-flow agentic development workflow:
-
-```
-┌─────────────────────────┐     ┌───────────────────────────┐     ┌──────────────────────────┐
-│  1. Context & Design    │ ──> │  2. Bite-Sized Planning   │ ──> │  3. Single-Flow Execution│
-│ (Brainstorm Architecture)     │   (Granular Task Spec)    │     │  (Sequential Code Build) │
-└─────────────────────────┘     └───────────────────────────┘     └────────────┬─────────────┘
-                                                                               │
-┌─────────────────────────┐     ┌───────────────────────────┐                  │
-│  5. Verification & Doc  │ <── │  4. Live Debugging Loop   │ <────────────────┘
-│ (Smoke Test & README)   │     │ (Fix 302s, Fences, Quota) │
-└─────────────────────────┘     └───────────────────────────┘
-```
-
-1. **Context & Requirement Discovery**: Evaluated zero-cost open-source alternatives (n8n, Telegram self-hosted bots, BudgetLens) and selected Google Apps Script + Gemini API + Google Sheets for a zero-hosting-fee serverless stack.
-2. **Granular Implementation Planning**: Created an explicit 9-task breakdown with bite-sized steps (Task 0 through Task 8), defining exact file paths, complete code snippets, and expected verification outputs.
-3. **Single-Flow Task Execution**: Executed implementation steps in an isolated feature branch (`feature/bot-implementation`) using strict single-task execution with two-stage review gates.
-4. **Iterative Security Hardening**: Conducted security audits and resolved vulnerability findings (webhook authentication, prompt injection, user authorization, and data validation).
-5. **Verification & Completion**: Verified the complete flow via `curl` smoke tests and end-to-end live Telegram interactions before documenting the system.
-
----
-
-## 🧠 Agent Skills & Workflow Tools Used
-
-The development process leveraged a specialized set of AI engineering skills:
-
-- 🛠️ **`using-superpowers`**: Established strict process discipline, requiring skill loading and workflow verification prior to taking any action.
-- 💡 **`brainstorming`**: Explored user requirements, deployment trade-offs, and architectural constraints before touching code.
-- 📝 **`writing-plans`**: Formatted a comprehensive implementation plan with bite-sized tasks, explicit file references, and test commands.
-- ⚡ **`executing-plans` & `single-flow-task-execution`**: Enforced single-thread task execution, explicit task boundaries, progress tracking in `task.md`, and checkpoint reviews.
-- 🌿 **`using-git-worktrees`**: Managed Git repository isolation, branch creation, and clean baseline checks.
-- 🐞 **`systematic-debugging`**: Provided a structured hypothesis-driven approach to trace root causes for API rate limits, HTTP status redirects, and JSON parsing failures.
-- ✅ **`verification-before-completion`**: Guaranteed evidence-based completion claims by verifying live API calls and HTTP responses before closing tasks.
-
----
-
 ## 🛠️ Step-by-Step Setup Guide ("Golden Steps")
 
 Follow these verified steps to deploy your own instance.
@@ -198,6 +160,55 @@ To connect Telegram to your Google Apps Script Web App with secret verification,
 ```bash
 curl -s "https://api.telegram.org/bot<TELEGRAM_BOT_TOKEN>/setWebhook?url=<WEB_APP_URL>?secret=<WEBHOOK_SECRET>"
 ```
+
+---
+
+## 🔄 Development Process & Methodology
+
+This project was built following a disciplined, single-flow agentic development workflow:
+
+```
+┌─────────────────────────┐     ┌───────────────────────────┐     ┌──────────────────────────┐
+│  1. Context & Design    │ ──> │  2. Bite-Sized Planning   │ ──> │  3. Single-Flow Execution│
+│ (Brainstorm Architecture)     │   (Granular Task Spec)    │     │  (Sequential Code Build) │
+└─────────────────────────┘     └───────────────────────────┘     └────────────┬─────────────┘
+                                                                               │
+┌─────────────────────────┐     ┌───────────────────────────┐                  │
+│  5. Verification & Doc  │ <── │  4. Live Debugging Loop   │ <────────────────┘
+│ (Smoke Test & README)   │     │ (Fix 302s, Fences, Quota) │
+└─────────────────────────┘     └───────────────────────────┘
+```
+
+1. **Context & Requirement Discovery**: Evaluated zero-cost open-source alternatives (n8n, Telegram self-hosted bots, BudgetLens) and selected Google Apps Script + Gemini API + Google Sheets for a zero-hosting-fee serverless stack.
+2. **Granular Implementation Planning**: Created an explicit 9-task breakdown with bite-sized steps (Task 0 through Task 8), defining exact file paths, complete code snippets, and expected verification outputs.
+3. **Single-Flow Task Execution**: Executed implementation steps in an isolated feature branch (`feature/bot-implementation`) using strict single-task execution with two-stage review gates.
+4. **Iterative Security Hardening**: Conducted security audits and resolved vulnerability findings (webhook authentication, prompt injection, user authorization, and data validation).
+5. **Verification & Completion**: Verified the complete flow via `curl` smoke tests and end-to-end live Telegram interactions before documenting the system.
+
+---
+
+## 🧠 Agent Skills & Workflow Tools Used
+
+The development process leveraged a specialized set of AI engineering skills:
+
+- 🛠️ **`using-superpowers`**: Established strict process discipline, requiring skill loading and workflow verification prior to taking any action.
+- 💡 **`brainstorming`**: Explored user requirements, deployment trade-offs, and architectural constraints before touching code.
+- 📝 **`writing-plans`**: Formatted a comprehensive implementation plan with bite-sized tasks, explicit file references, and test commands.
+- ⚡ **`executing-plans` & `single-flow-task-execution`**: Enforced single-thread task execution, explicit task boundaries, progress tracking in `task.md`, and checkpoint reviews.
+- 🌿 **`using-git-worktrees`**: Managed Git repository isolation, branch creation, and clean baseline checks.
+- 🐞 **`systematic-debugging`**: Provided a structured hypothesis-driven approach to trace root causes for API rate limits, HTTP status redirects, and JSON parsing failures.
+- ✅ **`verification-before-completion`**: Guaranteed evidence-based completion claims by verifying live API calls and HTTP responses before closing tasks.
+
+---
+
+## 📋 Implementation Plans & Design Documents
+
+For detailed technical specifications, architectural decisions, and step-by-step task breakdowns, refer to the following documents in [`docs/plans/`](docs/plans/):
+
+- 🏗️ **Initial Implementation Plan**: [`docs/plans/2026-07-19-myfinancialbot-implementation.md`](docs/plans/2026-07-19-myfinancialbot-implementation.md) — 9-task specification covering zero-cost architecture, Google Apps Script backend setup, Gemini API client, and Sheets logging.
+- 📦 **Prompt Module Refactoring**: Design ([`docs/plans/2026-07-20-move-prompt-to-new-file-design.md`](docs/plans/2026-07-20-move-prompt-to-new-file-design.md)) & Plan ([`docs/plans/2026-07-20-move-prompt-to-new-file.md`](docs/plans/2026-07-20-move-prompt-to-new-file.md)) — Modularized Gemini extraction prompt definitions into `src/Prompt.gs` with dynamic date anchors.
+- 🛡️ **Security Hardening**: Design ([`docs/plans/2026-07-24-security-hardening-design.md`](docs/plans/2026-07-24-security-hardening-design.md)) & Plan ([`docs/plans/2026-07-24-security-hardening.md`](docs/plans/2026-07-24-security-hardening.md)) — Comprehensive security audit remediation, implementing 4 concentric security gates, prompt injection isolation, and payload validation.
+- 📌 **Task Tracker**: [`docs/plans/task.md`](docs/plans/task.md) — Live project status checklist tracking milestone execution across all feature branches.
 
 ---
 
