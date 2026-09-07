@@ -8,8 +8,9 @@ import urllib.request
 import urllib.error
 
 # ─── Load environment ────────────────────────────────────────────────────────
+env_files = [sys.argv[1]] if len(sys.argv) > 1 else ['.env.local', '.env']
 env_vars = {}
-for env_file in ['.env.javier', '.env']:
+for env_file in env_files:
     if os.path.exists(env_file):
         with open(env_file) as f:
             for line in f:

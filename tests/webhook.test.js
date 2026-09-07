@@ -141,3 +141,21 @@ test('sendMessage retries plain text when Telegram API rejects Markdown with HTT
   assert.equal(retryPayload.parse_mode, undefined);
   assert.equal(retryPayload.text, 'Hello *unclosed markdown');
 });
+
+test('sendMessage does NOT retry plain text when Telegram API fails with non-400 status code', () => {
+  const env = createGasEnvironment({
+    TELEGRAM_BOT_TOKEN: 'bot_token'
+  });
+
+  let sendCount = 0;
+  env.setFetchHandler(() => {
+    sendCount++;
+    return {
+      getResponseCode: () => 500,
+      getContentText: () => 'Internal Server Error'
+    };
+  });
+
+  env.context.sendMessage(1001, 'Hello');
+  assert.equal(sendCount, 1);
+});

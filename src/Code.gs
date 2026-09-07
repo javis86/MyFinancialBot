@@ -143,9 +143,12 @@ function handleTextMessage(chatId, text) {
   const result = extractExpenseFromText(text);
   if (!result.success) {
     if (result.errorType === 'API_ERROR') {
+      const statusStr = (result.statusCode !== undefined && result.statusCode !== null && result.statusCode !== 0)
+        ? 'HTTP ' + result.statusCode
+        : 'Network Error';
       sendMessage(
         chatId,
-        '⚠️ *Error en la API de IA / AI Service Error* (HTTP ' + (result.statusCode || 'Timeout') + ')\n\n' +
+        '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' +
         'El servicio de Google Gemini tuvo un problema o está sobrecargado. Intentá de nuevo en unos minutos.\n' +
         'Google Gemini API is currently unavailable or rate limited. Please try again shortly.'
       );
@@ -184,9 +187,12 @@ function handlePhotoMessage(chatId, message) {
     const result = extractExpenseFromImage(imageBase64, mimeType);
     if (!result.success) {
       if (result.errorType === 'API_ERROR') {
+        const statusStr = (result.statusCode !== undefined && result.statusCode !== null && result.statusCode !== 0)
+          ? 'HTTP ' + result.statusCode
+          : 'Network Error';
         sendMessage(
           chatId,
-          '⚠️ *Error en la API de IA / AI Service Error* (HTTP ' + (result.statusCode || 'Timeout') + ')\n\n' +
+          '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' +
           'El servicio de Google Gemini tuvo un problema al procesar la imagen. Intentá de nuevo en unos minutos.\n' +
           'Google Gemini API failed to process the image. Please try again shortly.'
         );
@@ -500,7 +506,8 @@ function sendMessage(chatId, text) {
     muteHttpExceptions: true,
   });
 
-  if (response.getResponseCode() !== 200) {
+  // If Telegram rejects Markdown formatting (HTTP 400), retry without parse_mode as plain text
+  if (response.getResponseCode() === 400) {
     Logger.log('sendMessage Markdown failed (' + response.getResponseCode() + '): ' + response.getContentText() + '. Retrying plain text...');
     UrlFetchApp.fetch(url, {
       method: 'post',
