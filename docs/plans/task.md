@@ -29,6 +29,10 @@
 | S11 | Re-register Telegram webhook with secret param | ⬜ todo |
 | S12 | Deploy updated code + end-to-end verification | ⬜ todo |
 | 12 | Fix Photo OCR handling (MIME type fallback & schema coercion in src/Code.gs) | ✅ done |
+| 13 | Cloud Bot Diagnosis & Test Suite (Fix GEMINI_MODEL, env secrets, test runner) | ✅ done |
+| 14 | Add Unit Testing Suite for Apps Script (Config, Prompt, Code, Gates & Gemini API) | ✅ done |
+
+
 
 
 
