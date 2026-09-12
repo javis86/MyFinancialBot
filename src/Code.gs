@@ -506,8 +506,11 @@ function sendMessage(chatId, text) {
     muteHttpExceptions: true,
   });
 
-  // If Telegram rejects Markdown formatting (HTTP 400), retry without parse_mode as plain text
-  if (response.getResponseCode() === 400) {
+  // If Telegram rejects Markdown formatting, retry without parse_mode as plain text
+  if (
+    response.getResponseCode() === 400 &&
+    response.getContentText().toLowerCase().includes('can\'t parse entities')
+  ) {
     Logger.log('sendMessage Markdown failed (' + response.getResponseCode() + '): ' + response.getContentText() + '. Retrying plain text...');
     UrlFetchApp.fetch(url, {
       method: 'post',

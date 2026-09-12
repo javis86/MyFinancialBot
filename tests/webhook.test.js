@@ -159,3 +159,21 @@ test('sendMessage does NOT retry plain text when Telegram API fails with non-400
   env.context.sendMessage(1001, 'Hello');
   assert.equal(sendCount, 1);
 });
+
+test('sendMessage does NOT retry plain text when Telegram API returns HTTP 400 for a non-Markdown error', () => {
+  const env = createGasEnvironment({
+    TELEGRAM_BOT_TOKEN: 'bot_token'
+  });
+
+  let sendCount = 0;
+  env.setFetchHandler(() => {
+    sendCount++;
+    return {
+      getResponseCode: () => 400,
+      getContentText: () => 'Bad Request: chat not found'
+    };
+  });
+
+  env.context.sendMessage(1001, 'Hello');
+  assert.equal(sendCount, 1);
+});
