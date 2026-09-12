@@ -14,3 +14,6 @@ worktrees/
 
 # Agent config
 .agent/
+
+# Apps Script local clasp configuration
+.clasp.json

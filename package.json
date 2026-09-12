@@ -4,7 +4,16 @@
   "description": "A zero-cost serverless Telegram bot for personal expense tracking using Google Apps Script, Gemini AI, and Google Sheets",
   "main": "src/Code.gs",
   "scripts": {
-    "test": "node --test tests/**/*.test.js"
+    "test": "node --test tests/**/*.test.js",
+    "login": "clasp login",
+    "push": "clasp push -f",
+    "deploy": "clasp deploy",
+    "deployments": "clasp deployments",
+    "watch": "clasp push --watch",
+    "status": "clasp status"
+  },
+  "devDependencies": {
+    "@google/clasp": "^2.4.2"
   },
   "keywords": ["telegram", "google-apps-script", "gemini-ai", "expense-tracker"],
   "author": "",
