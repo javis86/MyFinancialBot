@@ -1,4 +1,5 @@
 // Code.gs — Main webhook handler for MyFinancialBot
+// Clasp deployment test marker: verified 2026-09-12
 //
 // Data flow:
 //   Telegram message → doPost() → handleUpdate() → Gemini extract → appendToSheet() → sendMessage()
