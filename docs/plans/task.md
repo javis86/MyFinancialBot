@@ -35,5 +35,5 @@
 | 16 | Ask clarifying questions for automated deployment setup | ✅ done |
 | 17 | Propose 2-3 approaches with trade-offs | ✅ done |
 | 18 | Present design and get user approval | ✅ done |
-| 19 | Write design doc and commit | 🔄 in_progress |
-| 20 | Execute plan (configure clasp / scripts / guide updates) | ⬜ todo |
+| 19 | Write design doc and commit | ✅ done |
+| 20 | Execute plan (configure clasp / scripts / guide updates) | ✅ done |
