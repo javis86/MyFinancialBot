@@ -184,10 +184,21 @@ Instead of manually copying code into the web editor, you can push code and mana
    This automatically uploads `Config.gs`, `Prompt.gs`, `Code.gs`, and `appsscript.json` from `src/` to Google Apps Script.
 
 5. **Deploy Web App**:
-   ```bash
-   npm run deploy
-   ```
-   This creates a new versioned Web App deployment and prints the public Web App URL.
+   - **Initial / First-Time Deployment** (Generates a new Web App URL):
+     ```bash
+     npm run deploy
+     ```
+   - **Updating Active Deployment without changing URL (Recommended for Updates)**:
+     To push code updates to your active live bot **without changing the Web App URL** (so you don't have to re-register the Telegram webhook):
+     1. List existing deployment IDs:
+        ```bash
+        npm run deployments
+        ```
+     2. Redeploy to your active deployment ID:
+        ```bash
+        npm run deploy -- -i <DEPLOYMENT_ID> -d "v2 production update"
+        ```
+        > 💡 **Tip**: Using `-i <DEPLOYMENT_ID>` creates a new immutable version under the exact same Web App URL endpoint.
 
 
 ---

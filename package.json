@@ -8,6 +8,7 @@
     "login": "clasp login",
     "push": "clasp push -f",
     "deploy": "clasp deploy",
+    "deployments": "clasp deployments",
     "watch": "clasp push --watch",
     "status": "clasp status"
   },

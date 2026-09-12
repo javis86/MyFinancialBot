@@ -21,7 +21,9 @@ Key reasons:
 Add `@google/clasp` as a `devDependency` and configure standard CLI scripts:
 - `npm run login`: Launches browser OAuth login flow to authenticate `clasp` locally.
 - `npm run push`: Pushes local `src/*.gs` files and manifest to Google Apps Script.
-- `npm run deploy`: Creates a versioned Web App deployment in Google Apps Script.
+- `npm run deploy`: Creates a new versioned Web App deployment in Google Apps Script.
+- `npm run deployments`: Lists active deployment IDs to target for URL-preserving updates.
+- `npm run deploy -- -i <deploymentId> -d "<description>"`: Updates an active deployment in-place without changing its Web App URL.
 - `npm run watch`: Auto-syncs file changes on save during active development.
 - `npm run status`: Shows local modified/untracked files relative to Apps Script.
 
