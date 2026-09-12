@@ -146,11 +146,19 @@ function handleTextMessage(chatId, text) {
       const statusStr = (result.statusCode !== undefined && result.statusCode !== null && result.statusCode !== 0)
         ? 'HTTP ' + result.statusCode
         : 'Network Error';
+      const isOutage = result.statusCode === 0 || result.statusCode === 429 || result.statusCode === 503;
+      const details = isOutage
+        ? (
+          'El servicio de Google Gemini tuvo un problema o está sobrecargado. Intentá de nuevo en unos minutos.\n' +
+          'Google Gemini API is currently unavailable or rate limited. Please try again shortly.'
+        )
+        : (
+          'El bot no pudo completar la solicitud a Google Gemini (' + statusStr + '). Revisá la configuración e intentá más tarde.\n' +
+          'The bot could not complete the Gemini request (' + statusStr + '). Check configuration and try again.'
+        );
       sendMessage(
         chatId,
-        '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' +
-        'El servicio de Google Gemini tuvo un problema o está sobrecargado. Intentá de nuevo en unos minutos.\n' +
-        'Google Gemini API is currently unavailable or rate limited. Please try again shortly.'
+        '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' + details
       );
     } else {
       sendMessage(
