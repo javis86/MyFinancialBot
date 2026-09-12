@@ -141,7 +141,7 @@ Follow these verified steps to deploy your own instance.
 
 ---
 
-### Phase 5: Web App Deployment
+### Phase 5 (Option A): Web App Deployment (Manual)
 
 1. Click **Deploy** > **New Deployment** (top right).
 2. Click the gear icon ⚙️ next to "Select type" and choose **Web app**.
@@ -150,6 +150,45 @@ Follow these verified steps to deploy your own instance.
    - **Execute as**: `Me (your_email@gmail.com)`
    - **Who has access**: **`Anyone`** *(Crucial: Allows Telegram servers to send POST webhooks without requiring Google login)*.
 4. Click **Deploy** and copy the resulting **Web App URL** (`https://script.google.com/macros/s/.../exec`).
+
+---
+
+### Phase 5 (Option B): Automated CLI Deployment via `clasp` (Recommended)
+
+Instead of manually copying code into the web editor, you can push code and manage web app deployments directly from your terminal using `@google/clasp`:
+
+1. **Enable Apps Script API**:
+   - Go to [Google Apps Script Settings](https://script.google.com/home/usersettings).
+   - Switch the **Google Apps Script API** toggle to **ON**.
+
+2. **Authenticate Local CLI**:
+   ```bash
+   npm run login
+   ```
+   Follow the browser OAuth prompt to authorize Google Apps Script access.
+
+3. **Link Your Apps Script Project**:
+   - **For an existing project**: Copy `.clasp.json.example` to `.clasp.json` and replace `YOUR_APPS_SCRIPT_ID_HERE` with your Script ID (found under ⚙️ **Project Settings** > **IDs** > **Script ID**):
+     ```bash
+     cp .clasp.json.example .clasp.json
+     ```
+   - **For a new project**: Run `clasp` to create a new Apps Script Web App:
+     ```bash
+     npx clasp create --type webapp --title "MyFinancialBot" --rootDir src
+     ```
+
+4. **Push Code Updates**:
+   ```bash
+   npm run push
+   ```
+   This automatically uploads `Config.gs`, `Prompt.gs`, `Code.gs`, and `appsscript.json` from `src/` to Google Apps Script.
+
+5. **Deploy Web App**:
+   ```bash
+   npm run deploy
+   ```
+   This creates a new versioned Web App deployment and prints the public Web App URL.
+
 
 ---
 
