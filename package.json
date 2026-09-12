@@ -1,0 +1,12 @@
+{
+  "name": "myfinancialbot",
+  "version": "1.0.0",
+  "description": "A zero-cost serverless Telegram bot for personal expense tracking using Google Apps Script, Gemini AI, and Google Sheets",
+  "main": "src/Code.gs",
+  "scripts": {
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": ["telegram", "google-apps-script", "gemini-ai", "expense-tracker"],
+  "author": "",
+  "license": "MIT"
+}

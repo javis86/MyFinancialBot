@@ -140,19 +140,39 @@ function handleTextMessage(chatId, text) {
     return;
   }
 
-  const expense = extractExpenseFromText(text);
-  if (!expense) {
-    sendMessage(
-      chatId,
-      '❌ No pude entender el gasto. / I couldn\'t parse that expense.\n\n' +
-      'Try: _Spent $50 on coffee at Starbucks_\n' +
-      'O: _Pagué $800 de nafta en YPF_'
-    );
+  const result = extractExpenseFromText(text);
+  if (!result.success) {
+    if (result.errorType === 'API_ERROR') {
+      const statusStr = (result.statusCode !== undefined && result.statusCode !== null && result.statusCode !== 0)
+        ? 'HTTP ' + result.statusCode
+        : 'Network Error';
+      const isOutage = result.statusCode === 0 || result.statusCode === 429 || result.statusCode === 503;
+      const details = isOutage
+        ? (
+          'El servicio de Google Gemini tuvo un problema o está sobrecargado. Intentá de nuevo en unos minutos.\n' +
+          'Google Gemini API is currently unavailable or rate limited. Please try again shortly.'
+        )
+        : (
+          'El bot no pudo completar la solicitud a Google Gemini (' + statusStr + '). Revisá la configuración e intentá más tarde.\n' +
+          'The bot could not complete the Gemini request (' + statusStr + '). Check configuration and try again.'
+        );
+      sendMessage(
+        chatId,
+        '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' + details
+      );
+    } else {
+      sendMessage(
+        chatId,
+        '❌ No pude entender el gasto. / I couldn\'t parse that expense.\n\n' +
+        'Try: _Spent $50 on coffee at Starbucks_\n' +
+        'O: _Pagué $800 de nafta en YPF_'
+      );
+    }
     return;
   }
 
-  appendToSheet(expense);
-  sendMessage(chatId, formatConfirmation(expense));
+  appendToSheet(result.data);
+  sendMessage(chatId, formatConfirmation(result.data));
 }
 
 /**
@@ -172,18 +192,30 @@ function handlePhotoMessage(chatId, message) {
     const fileId = message.photo[message.photo.length - 1].file_id;
     const { data: imageBase64, mimeType } = downloadFileAsBase64(fileId);
 
-    const expense = extractExpenseFromImage(imageBase64, mimeType);
-    if (!expense) {
-      sendMessage(
-        chatId,
-        '❌ No pude leer el recibo. / Couldn\'t read the receipt.\n\n' +
-        'Please try a clearer, well-lit photo.'
-      );
+    const result = extractExpenseFromImage(imageBase64, mimeType);
+    if (!result.success) {
+      if (result.errorType === 'API_ERROR') {
+        const statusStr = (result.statusCode !== undefined && result.statusCode !== null && result.statusCode !== 0)
+          ? 'HTTP ' + result.statusCode
+          : 'Network Error';
+        sendMessage(
+          chatId,
+          '⚠️ *Error en la API de IA / AI Service Error* (' + statusStr + ')\n\n' +
+          'El servicio de Google Gemini tuvo un problema al procesar la imagen. Intentá de nuevo en unos minutos.\n' +
+          'Google Gemini API failed to process the image. Please try again shortly.'
+        );
+      } else {
+        sendMessage(
+          chatId,
+          '❌ No pude leer el recibo. / Couldn\'t read the receipt.\n\n' +
+          'Please try a clearer, well-lit photo.'
+        );
+      }
       return;
     }
 
-    appendToSheet(expense);
-    sendMessage(chatId, formatConfirmation(expense));
+    appendToSheet(result.data);
+    sendMessage(chatId, formatConfirmation(result.data));
   } catch (err) {
     Logger.log('handlePhotoMessage error: ' + err.message);
     sendMessage(chatId, '❌ Error procesando la imagen. / Error processing the image.');
@@ -311,10 +343,10 @@ function validateExpense(parsed) {
 
 /**
  * Core Gemini API caller. Sends a generateContent request and parses the JSON response.
- * Returns null on any error (API failure, non-200 status, invalid JSON, schema violation).
+ * Returns a result object distinguishing between API/network errors, parse failures, and successful extractions.
  *
  * @param {Object} payload - Gemini API request body
- * @returns {Object|null} Parsed and validated expense JSON, or null
+ * @returns {{ success: boolean, data?: Object, errorType?: string, statusCode?: number, message?: string }}
  */
 function callGemini(payload) {
   // API key goes in the request header — NOT the URL query string.
@@ -324,25 +356,58 @@ function callGemini(payload) {
     CONFIG.GEMINI_MODEL +
     ':generateContent';
 
-  const response = UrlFetchApp.fetch(url, {
-    method: 'post',
-    contentType: 'application/json',
-    headers: { 'x-goog-api-key': CONFIG.GEMINI_API_KEY },
-    payload: JSON.stringify(payload),
-    muteHttpExceptions: true,   // Prevents GAS from throwing on 4xx/5xx
-  });
-
-  if (response.getResponseCode() !== 200) {
-    Logger.log('Gemini API error (' + response.getResponseCode() + '): ' + response.getContentText());
-    return null;
+  let response;
+  try {
+    response = UrlFetchApp.fetch(url, {
+      method: 'post',
+      contentType: 'application/json',
+      headers: { 'x-goog-api-key': CONFIG.GEMINI_API_KEY },
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true,   // Prevents GAS from throwing on 4xx/5xx
+    });
+  } catch (netErr) {
+    Logger.log('Gemini network/fetch error: ' + netErr.message);
+    return {
+      success: false,
+      errorType: 'API_ERROR',
+      statusCode: 0,
+      message: 'Network error or request timeout'
+    };
   }
 
-  const rawText = JSON.parse(response.getContentText())
-    ?.candidates?.[0]?.content?.parts?.[0]?.text;
+  const statusCode = response.getResponseCode();
+  if (statusCode !== 200) {
+    const errorText = response.getContentText();
+    Logger.log('Gemini API error (' + statusCode + '): ' + errorText);
+    return {
+      success: false,
+      errorType: 'API_ERROR',
+      statusCode: statusCode,
+      message: errorText
+    };
+  }
+
+  let rawText;
+  try {
+    rawText = JSON.parse(response.getContentText())
+      ?.candidates?.[0]?.content?.parts?.[0]?.text;
+  } catch (jsonErr) {
+    Logger.log('Gemini response body was not valid JSON');
+    return {
+      success: false,
+      errorType: 'API_ERROR',
+      statusCode: 200,
+      message: 'Malformed response structure from Gemini API'
+    };
+  }
 
   if (!rawText) {
     Logger.log('Gemini returned empty content');
-    return null;
+    return {
+      success: false,
+      errorType: 'PARSE_ERROR',
+      message: 'Empty content returned'
+    };
   }
 
   let cleanText = rawText.trim();
@@ -360,7 +425,11 @@ function callGemini(payload) {
     const parsed = JSON.parse(cleanText);
     if (parsed.error) {
       Logger.log('Gemini could not parse expense: ' + parsed.error);
-      return null;
+      return {
+        success: false,
+        errorType: 'PARSE_ERROR',
+        message: parsed.error
+      };
     }
     // Ensure date fallback before validation
     if (!parsed.date || typeof parsed.date !== 'string') {
@@ -370,12 +439,23 @@ function callGemini(payload) {
     const validated = validateExpense(parsed);
     if (!validated) {
       Logger.log('validateExpense: schema check failed. Raw output: ' + rawText);
-      return null;
+      return {
+        success: false,
+        errorType: 'PARSE_ERROR',
+        message: 'Schema validation failed'
+      };
     }
-    return validated;
+    return {
+      success: true,
+      data: validated
+    };
   } catch (_) {
     Logger.log('Failed to parse Gemini JSON output. Raw: ' + rawText + ' | Cleaned: ' + cleanText);
-    return null;
+    return {
+      success: false,
+      errorType: 'PARSE_ERROR',
+      message: 'Failed to parse JSON'
+    };
   }
 }
 
@@ -422,19 +502,34 @@ function appendToSheet(expense) {
  * @param {string} text   - Message text (Markdown supported)
  */
 function sendMessage(chatId, text) {
-  UrlFetchApp.fetch(
-    'https://api.telegram.org/bot' + CONFIG.TELEGRAM_BOT_TOKEN + '/sendMessage',
-    {
+  const url = 'https://api.telegram.org/bot' + CONFIG.TELEGRAM_BOT_TOKEN + '/sendMessage';
+  const response = UrlFetchApp.fetch(url, {
+    method: 'post',
+    contentType: 'application/json',
+    payload: JSON.stringify({
+      chat_id: chatId,
+      text: text,
+      parse_mode: 'Markdown',
+    }),
+    muteHttpExceptions: true,
+  });
+
+  // If Telegram rejects Markdown formatting, retry without parse_mode as plain text
+  if (
+    response.getResponseCode() === 400 &&
+    response.getContentText().toLowerCase().includes('can\'t parse entities')
+  ) {
+    Logger.log('sendMessage Markdown failed (' + response.getResponseCode() + '): ' + response.getContentText() + '. Retrying plain text...');
+    UrlFetchApp.fetch(url, {
       method: 'post',
       contentType: 'application/json',
       payload: JSON.stringify({
         chat_id: chatId,
         text: text,
-        parse_mode: 'Markdown',
       }),
       muteHttpExceptions: true,
-    }
-  );
+    });
+  }
 }
 
 /**
