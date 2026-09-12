@@ -31,9 +31,9 @@
 | 12 | Fix Photo OCR handling (MIME type fallback & schema coercion in src/Code.gs) | ✅ done |
 | 13 | Cloud Bot Diagnosis & Test Suite (Fix GEMINI_MODEL, env secrets, test runner) | ✅ done |
 | 14 | Add Unit Testing Suite for Apps Script (Config, Prompt, Code, Gates & Gemini API) | ✅ done |
-
-
-
-
-
-
+| 15 | Explore project context & analyze deployment tools | ✅ done |
+| 16 | Ask clarifying questions for automated deployment setup | ✅ done |
+| 17 | Propose 2-3 approaches with trade-offs | ✅ done |
+| 18 | Present design and get user approval | ✅ done |
+| 19 | Write design doc and commit | 🔄 in_progress |
+| 20 | Execute plan (configure clasp / scripts / guide updates) | ⬜ todo |
