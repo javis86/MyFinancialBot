@@ -89,9 +89,32 @@ function handleUpdate(update) {
     return;
   }
 
+  // ── Gate 3.5: Deduplication — ignore duplicate Telegram updates/messages ─────
+  // Uses CacheService with a 10-minute (600s) TTL.
+  // Telegram webhooks retry delivery on timeout; deduplicating update_id & message_id
+  // prevents double-processing (duplicate Gemini calls, sheet rows, and chat replies).
+  const cache = CacheService.getScriptCache();
+
+  if (update.update_id !== undefined && update.update_id !== null) {
+    const updateDedupKey = 'dedup_up_' + update.update_id;
+    if (cache.get(updateDedupKey)) {
+      Logger.log('handleUpdate: duplicate update_id ' + update.update_id + ' — silent drop');
+      return;
+    }
+    cache.put(updateDedupKey, '1', 600);
+  }
+
+  if (message.message_id !== undefined && message.message_id !== null) {
+    const msgDedupKey = 'dedup_msg_' + chatId + '_' + message.message_id;
+    if (cache.get(msgDedupKey)) {
+      Logger.log('handleUpdate: duplicate message_id ' + message.message_id + ' — silent drop');
+      return;
+    }
+    cache.put(msgDedupKey, '1', 600);
+  }
+
   // ── Gate 3: Rate limiting — 20 requests per hour ────────────────────────────
   // Uses CacheService with a 1-hour TTL. Resets automatically each hour.
-  const cache = CacheService.getScriptCache();
   const rateKey = 'rate_' + chatId;
   const count = parseInt(cache.get(rateKey) || '0', 10);
   if (count >= 20) {

@@ -177,3 +177,68 @@ test('sendMessage does NOT retry plain text when Telegram API returns HTTP 400 f
   env.context.sendMessage(1001, 'Hello');
   assert.equal(sendCount, 1);
 });
+
+test('handleUpdate Gate 3.5: drops duplicate update_id payloads silently', () => {
+  const env = createGasEnvironment({
+    ALLOWED_CHAT_ID: '1001',
+    TELEGRAM_BOT_TOKEN: 'bot_token',
+    GEMINI_API_KEY: 'gemini_key',
+    SPREADSHEET_ID: 'sheet_abc'
+  });
+
+  const update = {
+    update_id: 98765,
+    message: {
+      message_id: 123,
+      chat: { id: 1001 },
+      text: 'Spent $45 on internet'
+    }
+  };
+
+  // First invocation — processes normally
+  env.context.handleUpdate(update);
+  assert.equal(env.appendRowCalls.some(call => call.sheetName === 'Transactions'), true);
+  const initialAppendCount = env.appendRowCalls.length;
+
+  // Second invocation with same update_id — dropped by Gate 3.5
+  env.context.handleUpdate(update);
+  assert.equal(env.appendRowCalls.length, initialAppendCount);
+  assert.ok(env.logsStore.some(log => log.includes('duplicate update_id 98765')));
+});
+
+test('handleUpdate Gate 3.5: drops duplicate message_id payloads silently', () => {
+  const env = createGasEnvironment({
+    ALLOWED_CHAT_ID: '1001',
+    TELEGRAM_BOT_TOKEN: 'bot_token',
+    GEMINI_API_KEY: 'gemini_key',
+    SPREADSHEET_ID: 'sheet_abc'
+  });
+
+  const update1 = {
+    update_id: 111,
+    message: {
+      message_id: 555,
+      chat: { id: 1001 },
+      text: 'Spent $45 on internet'
+    }
+  };
+
+  // Process update1
+  env.context.handleUpdate(update1);
+  const initialAppendCount = env.appendRowCalls.length;
+
+  // Different update_id but SAME message_id
+  const update2 = {
+    update_id: 222,
+    message: {
+      message_id: 555,
+      chat: { id: 1001 },
+      text: 'Spent $45 on internet'
+    }
+  };
+
+  env.context.handleUpdate(update2);
+  assert.equal(env.appendRowCalls.length, initialAppendCount);
+  assert.ok(env.logsStore.some(log => log.includes('duplicate message_id 555')));
+});
+
