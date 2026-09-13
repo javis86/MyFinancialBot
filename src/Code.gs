@@ -195,8 +195,9 @@ function handleTextMessage(chatId, text) {
     return;
   }
 
-  appendToSheet(result.data);
-  sendMessage(chatId, formatConfirmation(result.data));
+  const expense = applyCategoryRules(result.data, text);
+  appendToSheet(expense);
+  sendMessage(chatId, formatConfirmation(expense));
 }
 
 /**
@@ -238,8 +239,9 @@ function handlePhotoMessage(chatId, message) {
       return;
     }
 
-    appendToSheet(result.data);
-    sendMessage(chatId, formatConfirmation(result.data));
+    const expense = applyCategoryRules(result.data, '');
+    appendToSheet(expense);
+    sendMessage(chatId, formatConfirmation(expense));
   } catch (err) {
     Logger.log('handlePhotoMessage error: ' + err.message);
     sendMessage(chatId, '❌ Error procesando la imagen. / Error processing the image.');
@@ -298,13 +300,105 @@ function extractExpenseFromImage(base64Image, mimeType) {
 }
 
 
-// ─── Expense Schema Validator ──────────────────────────────────────────────────
+// ─── Expense Schema Validator & Category Rules Engine ──────────────
 
 /** Valid expense categories — must match Prompt.gs system prompt exactly */
 const VALID_CATEGORIES = new Set([
   'Food', 'Transport', 'Entertainment', 'Health',
   'Internet', 'Utilities', 'Shopping', 'Other'
 ]);
+
+/** In-memory set of user-configured categories from Mappings sheet */
+const DYNAMIC_CATEGORIES = new Set();
+
+/**
+ * Loads rules from CacheService or the Mappings sheet tab.
+ * If the Mappings sheet does not exist, creates it automatically with headers.
+ *
+ * @returns {Array<{ keyword: string, category: string, notes: string }>}
+ */
+function getCategoryRules() {
+  const cacheKey = 'category_rules_v1';
+  try {
+    const cache = CacheService.getScriptCache();
+    const cached = cache ? cache.get(cacheKey) : null;
+    if (cached) {
+      const parsedRules = JSON.parse(cached);
+      parsedRules.forEach(function(r) { if (r.category) DYNAMIC_CATEGORIES.add(r.category); });
+      return parsedRules;
+    }
+  } catch (_) {}
+
+  const rules = [];
+  try {
+    const dbSheet = SpreadsheetApp.openById(CONFIG.SPREADSHEET_ID);
+    let sheet = dbSheet.getSheetByName('Mappings');
+    if (!sheet) {
+      sheet = dbSheet.insertSheet('Mappings');
+      sheet.appendRow(['Keyword / Recipient', 'Target Category', 'Override Notes']);
+      return rules;
+    }
+
+    const values = sheet.getDataRange().getValues();
+    if (values && values.length > 1) {
+      for (let i = 1; i < values.length; i++) {
+        const row = values[i];
+        const keyword = row[0] ? String(row[0]).trim() : '';
+        const category = row[1] ? String(row[1]).trim() : '';
+        const notes = row[2] ? String(row[2]).trim() : '';
+        if (keyword && category) {
+          rules.push({ keyword: keyword, category: category, notes: notes });
+          DYNAMIC_CATEGORIES.add(category);
+        }
+      }
+    }
+
+    try {
+      const cache = CacheService.getScriptCache();
+      if (cache) cache.put(cacheKey, JSON.stringify(rules), 600);
+    } catch (_) {}
+  } catch (err) {
+    Logger.log('getCategoryRules error: ' + err.message);
+  }
+
+  return rules;
+}
+
+/**
+ * Applies custom category rules to an extracted expense object.
+ * Checks for keyword matches in merchant, notes, or raw user message.
+ *
+ * @param {Object} expense - Validated expense object
+ * @param {string} [rawText] - Raw text from user message
+ * @returns {Object} Updated expense object
+ */
+function applyCategoryRules(expense, rawText) {
+  if (!expense) return expense;
+  const rules = getCategoryRules();
+  if (!rules || rules.length === 0) return expense;
+
+  const merchantLower = (expense.merchant || '').toLowerCase();
+  const notesLower = (expense.notes || '').toLowerCase();
+  const rawTextLower = (rawText || '').toLowerCase();
+
+  for (let i = 0; i < rules.length; i++) {
+    const rule = rules[i];
+    const kwLower = rule.keyword.toLowerCase();
+    if (
+      (merchantLower && merchantLower.includes(kwLower)) ||
+      (notesLower && notesLower.includes(kwLower)) ||
+      (rawTextLower && rawTextLower.includes(kwLower))
+    ) {
+      expense.category = rule.category;
+      if (rule.notes) {
+        expense.notes = rule.notes;
+      }
+      break;
+    }
+  }
+
+  return expense;
+}
 
 /**
  * Validates a parsed Gemini expense object against strict schema rules.
@@ -328,11 +422,13 @@ function validateExpense(parsed) {
   // currency: must be exactly 3 uppercase letters (ISO 4217)
   if (typeof parsed.currency !== 'string' || !/^[A-Z]{3}$/.test(parsed.currency)) return null;
 
-  // category: match case-insensitively against VALID_CATEGORIES, fallback to 'Other'
+  // category: match case-insensitively against VALID_CATEGORIES or DYNAMIC_CATEGORIES, fallback to 'Other'
   if (typeof parsed.category === 'string') {
     const catLower = parsed.category.trim().toLowerCase();
     let matched = null;
-    for (const validCat of VALID_CATEGORIES) {
+    getCategoryRules();
+    const allCategories = new Set([...VALID_CATEGORIES, ...DYNAMIC_CATEGORIES]);
+    for (const validCat of allCategories) {
       if (validCat.toLowerCase() === catLower) {
         matched = validCat;
         break;

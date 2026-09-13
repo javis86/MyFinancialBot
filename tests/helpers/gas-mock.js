@@ -19,17 +19,34 @@ function createGasEnvironment(initialProperties = {}) {
     }),
   };
 
+  const sheetsStore = new Map();
+
+  const createSheetMock = (name) => {
+    if (!sheetsStore.has(name)) {
+      sheetsStore.set(name, []);
+    }
+    const rows = sheetsStore.get(name);
+    return {
+      appendRow: (row) => {
+        rows.push(row);
+        appendRowCalls.push({ sheetName: name, row });
+      },
+      getDataRange: () => ({
+        getValues: () => sheetsStore.get(name) || [],
+      }),
+    };
+  };
+
   const mockSpreadsheetApp = {
     openById: (id) => ({
       getSheetByName: (name) => {
         if (name === 'NonExistentSheet') return null;
-        return {
-          appendRow: (row) => appendRowCalls.push({ sheetName: name, row }),
-        };
+        if (name === 'Mappings' && !sheetsStore.has('Mappings')) return null;
+        return createSheetMock(name);
       },
-      insertSheet: (name) => ({
-        appendRow: (row) => appendRowCalls.push({ sheetName: name, row }),
-      }),
+      insertSheet: (name) => {
+        return createSheetMock(name);
+      },
     }),
   };
 
@@ -139,6 +156,8 @@ function createGasEnvironment(initialProperties = {}) {
     appendRowCalls,
     fetchCalls,
     cacheStore,
+    sheetsStore,
+    setSheetData: (name, data) => sheetsStore.set(name, data),
     setFetchHandler: (fn) => { customFetchHandler = fn; },
   };
 }
