@@ -43,3 +43,8 @@
 | 24 | Propose 2-3 approaches with trade-offs | ✅ done |
 | 25 | Present design and get user approval | ✅ done |
 | 26 | Write design doc and commit | ✅ done |
+| — | **TRANSFER CATEGORIZATION IMPLEMENTATION** ([plan](2026-09-13-transfer-categorization-rules.md)) | — |
+| 27 | Update Test Harness Mock (`tests/helpers/gas-mock.js`) | ✅ done |
+| 28 | Create Category Rules Unit Test Suite (`tests/rules.test.js`) | ✅ done |
+| 29 | Implement Category Rules Engine (`src/Code.gs`) | ✅ done |
+| 30 | End-to-End Verification & Documentation Update | ✅ done |
