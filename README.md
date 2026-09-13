@@ -11,7 +11,7 @@
 ### Features
 - 💬 **Natural Language Processing**: Log expenses by typing naturally in English or Spanish.
 - 📸 **Receipt OCR**: Upload receipt photos; Gemini Vision automatically extracts vendor, total amount, currency, and date.
-- 🔄 **Transfer & Custom Category Rules**: Map money transfers (e.g. *"Transfer to xxxxx"*) or custom expense keywords to specific categories (e.g., *"Education"*) and descriptions using an editable `Mappings` sheet tab.
+- 🔄 **Transfer & Custom Category Rules**: Add rows to the automatically created `Mappings` tab with `Keyword / Recipient`, `Target Category`, and optional `Override Notes`; keywords match case-insensitively by substring and changes refresh within 10 minutes.
 - 🌐 **Bilingual Support**: Seamlessly processes both English and Spanish queries.
 - 📊 **Spreadsheet Backend**: Stores all transactions neatly inside a customizable Google Sheet.
 - 🔒 **Security Hardened**: Multi-layered defense including webhook secret tokens, owner allowlists, rate limiting, and prompt injection isolation.

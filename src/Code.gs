@@ -426,8 +426,8 @@ function validateExpense(parsed) {
   if (typeof parsed.category === 'string') {
     const catLower = parsed.category.trim().toLowerCase();
     let matched = null;
+    getCategoryRules();
     const allCategories = new Set([...VALID_CATEGORIES, ...DYNAMIC_CATEGORIES]);
-    for (const validCat of allCategories) {
       if (validCat.toLowerCase() === catLower) {
         matched = validCat;
         break;
