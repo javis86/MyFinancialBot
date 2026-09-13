@@ -428,6 +428,7 @@ function validateExpense(parsed) {
     let matched = null;
     getCategoryRules();
     const allCategories = new Set([...VALID_CATEGORIES, ...DYNAMIC_CATEGORIES]);
+    for (const validCat of allCategories) {
       if (validCat.toLowerCase() === catLower) {
         matched = validCat;
         break;
