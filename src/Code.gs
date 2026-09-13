@@ -318,7 +318,7 @@ const DYNAMIC_CATEGORIES = new Set();
  * @returns {Array<{ keyword: string, category: string, notes: string }>}
  */
 function getCategoryRules() {
-  const cacheKey = 'category_rules_v1';
+  const cacheKey = 'category_rules_v2';
   try {
     const cache = CacheService.getScriptCache();
     const cached = cache ? cache.get(cacheKey) : null;
@@ -355,7 +355,9 @@ function getCategoryRules() {
 
     try {
       const cache = CacheService.getScriptCache();
-      if (cache) cache.put(cacheKey, JSON.stringify(rules), 600);
+      if (cache && rules.length > 0) {
+        cache.put(cacheKey, JSON.stringify(rules), 600);
+      }
     } catch (_) {}
   } catch (err) {
     Logger.log('getCategoryRules error: ' + err.message);
@@ -392,6 +394,9 @@ function applyCategoryRules(expense, rawText) {
       expense.category = rule.category;
       if (rule.notes) {
         expense.notes = rule.notes;
+      }
+      if (!expense.merchant || expense.merchant.trim() === '' || expense.merchant === '—') {
+        expense.merchant = rule.keyword;
       }
       break;
     }

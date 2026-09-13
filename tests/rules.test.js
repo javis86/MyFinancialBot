@@ -36,8 +36,8 @@ test('getCategoryRules reads and caches rules from Mappings sheet', () => {
   assert.deepEqual(rules[1], { keyword: 'alquiler', category: 'Housing', notes: 'Monthly rent' });
 
   // Verify rules are stored in cache
-  const cachedJson = env.cacheStore.get('category_rules_v1');
-  assert.ok(cachedJson, 'Cache should contain category_rules_v1');
+  const cachedJson = env.cacheStore.get('category_rules_v2');
+  assert.ok(cachedJson, 'Cache should contain category_rules_v2');
   assert.deepEqual(JSON.parse(cachedJson), rules);
 });
 
@@ -136,3 +136,54 @@ test('validateExpense accepts user-defined custom categories from rules', () => 
   assert.ok(validated);
   assert.equal(validated.category, 'Education');
 });
+
+test('applyCategoryRules matches recipient inside notes from MODO transfer receipt image', () => {
+  const env = createGasEnvironment({
+    SPREADSHEET_ID: 'test-spreadsheet-id',
+  });
+
+  env.setSheetData('Mappings', [
+    ['Keyword / Recipient', 'Target Category', 'Override Notes'],
+    ['Pablo Fabian Pastor', 'Health', 'Chikung class'],
+  ]);
+
+  const modoReceiptExpense = {
+    date: '2026-09-12',
+    amount: 12000,
+    currency: 'ARS',
+    category: 'Other',
+    merchant: '',
+    notes: 'Transfer from Javier Nicolas Colombera to Pablo Fabian Pastor. Motivo: VAR.',
+  };
+
+  const updated = env.context.applyCategoryRules(modoReceiptExpense, '');
+  assert.equal(updated.category, 'Health');
+  assert.equal(updated.notes, 'Chikung class');
+  assert.equal(updated.merchant, 'Pablo Fabian Pastor');
+});
+
+test('getCategoryRules does not cache empty rules long term so new rules are loaded immediately', () => {
+  const env = createGasEnvironment({
+    SPREADSHEET_ID: 'test-spreadsheet-id',
+  });
+
+  // 1. Initial empty sheet with header only
+  env.setSheetData('Mappings', [
+    ['Keyword / Recipient', 'Target Category', 'Override Notes'],
+  ]);
+
+  const initialRules = JSON.parse(JSON.stringify(env.context.getCategoryRules()));
+  assert.equal(initialRules.length, 0);
+
+  // 2. User populates the sheet tab
+  env.setSheetData('Mappings', [
+    ['Keyword / Recipient', 'Target Category', 'Override Notes'],
+    ['Pablo Fabian Pastor', 'Health', 'Chikung class'],
+  ]);
+
+  // 3. Next call should detect the new rule immediately without waiting 10 minutes
+  const updatedRules = JSON.parse(JSON.stringify(env.context.getCategoryRules()));
+  assert.equal(updatedRules.length, 1);
+  assert.equal(updatedRules[0].keyword, 'Pablo Fabian Pastor');
+});
+
