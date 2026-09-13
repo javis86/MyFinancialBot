@@ -10,13 +10,13 @@ test('getCategoryRules creates Mappings sheet with default headers if missing', 
     SPREADSHEET_ID: 'test-spreadsheet-id',
   });
 
-  const rules = env.context.getCategoryRules();
+  const rules = JSON.parse(JSON.stringify(env.context.getCategoryRules()));
   assert.deepEqual(rules, []);
 
   // Check that insertSheet was called and headers appended
   const mappingsSheet = env.sheetsStore.get('Mappings');
   assert.ok(mappingsSheet, 'Mappings sheet should be created');
-  assert.deepEqual(mappingsSheet[0], ['Keyword / Recipient', 'Target Category', 'Override Notes']);
+  assert.deepEqual(JSON.parse(JSON.stringify(mappingsSheet[0])), ['Keyword / Recipient', 'Target Category', 'Override Notes']);
 });
 
 test('getCategoryRules reads and caches rules from Mappings sheet', () => {
@@ -30,7 +30,7 @@ test('getCategoryRules reads and caches rules from Mappings sheet', () => {
     ['alquiler', 'Housing', 'Monthly rent'],
   ]);
 
-  const rules = env.context.getCategoryRules();
+  const rules = JSON.parse(JSON.stringify(env.context.getCategoryRules()));
   assert.equal(rules.length, 2);
   assert.deepEqual(rules[0], { keyword: 'xxxxx', category: 'Education', notes: 'Payment for English class' });
   assert.deepEqual(rules[1], { keyword: 'alquiler', category: 'Housing', notes: 'Monthly rent' });
