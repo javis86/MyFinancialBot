@@ -7,10 +7,12 @@
  * The schema is strict; any deviation from JSON format will cause a parse failure.
  *
  * @param {string} [todayDateStr] - Optional YYYY-MM-DD date string. Defaults to today's UTC date.
+ * @param {string} [defaultCurrency] - Optional default currency ISO code (e.g. 'ARS').
  * @returns {string} The formatted system prompt.
  */
-function getExtractionSystemPrompt(todayDateStr) {
+function getExtractionSystemPrompt(todayDateStr, defaultCurrency) {
   const today = todayDateStr || new Date().toISOString().split('T')[0];
+  const currency = defaultCurrency || (typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_CURRENCY ? CONFIG.DEFAULT_CURRENCY : 'ARS');
   return `
 You are a bilingual (English/Spanish) expense extraction assistant.
 Given a user message or a receipt image, extract the expense and return ONLY a valid JSON object.
@@ -22,7 +24,7 @@ Required JSON schema:
 {
   "date": "YYYY-MM-DD",
   "amount": 45.00,
-  "currency": "USD",
+  "currency": "${currency}",
   "category": "Internet",
   "merchant": "Movistar",
   "notes": ""
@@ -33,7 +35,7 @@ Rules:
 - amount: Numeric value only, no currency symbols.
 - currency: 3-letter ISO 4217 code.
   Inference rules: "pesos" or "ARS" → "ARS", "dólares" or "USD" → "USD",
-  "$" alone without country context → "USD", "€" → "EUR".
+  "$" alone without country context → "${currency}", "€" → "EUR".
 - category: Must be exactly one of: Food, Transport, Entertainment, Health, Internet, Utilities, Shopping, Other.
 - merchant: Name of store, vendor, or service provider. Empty string if unknown.
 - notes: Any additional context the user provided. Empty string if none.
@@ -44,4 +46,5 @@ If you cannot extract a valid expense, return: { "error": "Could not parse" }
 
 /** Default system prompt instance for static reference */
 const EXTRACTION_SYSTEM_PROMPT = getExtractionSystemPrompt();
+
 

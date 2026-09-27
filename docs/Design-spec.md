@@ -198,6 +198,9 @@ Instead of hardcoding keys into the code, use Google's secure properties:
     *   `TELEGRAM_BOT_TOKEN` : (Your token from Phase 1)
     *   `GEMINI_API_KEY` : (Your token from Phase 2)
     *   `SPREADSHEET_ID` : (Your ID from Phase 3.1)
+    *   `DEFAULT_CURRENCY` : (Optional default currency ISO code, e.g. `ARS`)
+
+
 4.  Save the script properties.
 
 ### 4.2 Deploy as a Web App

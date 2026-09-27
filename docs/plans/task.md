@@ -48,3 +48,16 @@
 | 28 | Create Category Rules Unit Test Suite (`tests/rules.test.js`) | ✅ done |
 | 29 | Implement Category Rules Engine (`src/Code.gs`) | ✅ done |
 | 30 | End-to-End Verification & Documentation Update | ✅ done |
+| — | **DEFAULT CURRENCY CONFIGURATION** | — |
+| 31 | Explore project context & analyze default currency configuration requirements | ✅ done |
+| 32 | Ask clarifying questions for configurable default currency | ✅ done |
+| 33 | Propose 2-3 approaches with trade-offs | ✅ done |
+| 34 | Present design and get user approval | ✅ done |
+| 35 | Write design doc and commit | ✅ done |
+| — | **DEFAULT CURRENCY IMPLEMENTATION** ([plan](2026-09-27-default-currency-configuration.md)) | — |
+| 36 | Task 1: Add DEFAULT_CURRENCY to Config.gs and tests | ✅ done |
+| 37 | Task 2: Inject dynamic default currency into Prompt.gs and tests | ✅ done |
+| 38 | Task 3: Wire default currency into Code.gs extraction & validation | ✅ done |
+| 39 | Task 4: Update Documentation (.env.example, README.md, Design-spec.md) | ✅ done |
+| 40 | Task 5: Comprehensive Suite Verification & Final Commit | ✅ done |
+

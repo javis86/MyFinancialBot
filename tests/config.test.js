@@ -32,3 +32,14 @@ test('CONFIG.DEBUG_LOGGING parses true/false string correctly', () => {
   const env2 = createGasEnvironment({ DEBUG_LOGGING: 'false' });
   assert.equal(env2.context.CONFIG.DEBUG_LOGGING, false);
 });
+
+test('CONFIG.DEFAULT_CURRENCY returns ARS by default when unset', () => {
+  const env = createGasEnvironment({});
+  assert.equal(env.context.CONFIG.DEFAULT_CURRENCY, 'ARS');
+});
+
+test('CONFIG.DEFAULT_CURRENCY returns custom property value when set', () => {
+  const env = createGasEnvironment({ DEFAULT_CURRENCY: 'USD' });
+  assert.equal(env.context.CONFIG.DEFAULT_CURRENCY, 'USD');
+});
+

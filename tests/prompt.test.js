@@ -22,3 +22,18 @@ test('EXTRACTION_SYSTEM_PROMPT is defined as non-empty static prompt', () => {
   assert.ok(env.context.EXTRACTION_SYSTEM_PROMPT.length > 100);
   assert.match(env.context.EXTRACTION_SYSTEM_PROMPT, /bilingual \(English\/Spanish\) expense extraction assistant/);
 });
+
+test('getExtractionSystemPrompt defaults currency to ARS when not specified', () => {
+  const env = createGasEnvironment({});
+  const prompt = env.context.getExtractionSystemPrompt('2026-09-07');
+  assert.match(prompt, /"currency": "ARS"/);
+  assert.match(prompt, /"\$" alone without country context → "ARS"/);
+});
+
+test('getExtractionSystemPrompt injects custom currency when specified', () => {
+  const env = createGasEnvironment({});
+  const prompt = env.context.getExtractionSystemPrompt('2026-09-07', 'EUR');
+  assert.match(prompt, /"currency": "EUR"/);
+  assert.match(prompt, /"\$" alone without country context → "EUR"/);
+});
+
