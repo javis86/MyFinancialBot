@@ -260,8 +260,9 @@ function handlePhotoMessage(chatId, message) {
  * @returns {Object|null} Parsed expense object, or null on failure
  */
 function extractExpenseFromText(text) {
+  const defaultCurrency = typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_CURRENCY ? CONFIG.DEFAULT_CURRENCY : 'ARS';
   const prompt = typeof getExtractionSystemPrompt === 'function'
-    ? getExtractionSystemPrompt()
+    ? getExtractionSystemPrompt(undefined, defaultCurrency)
     : EXTRACTION_SYSTEM_PROMPT;
 
   // systemInstruction separates the system prompt from user content at the API level.
@@ -282,8 +283,9 @@ function extractExpenseFromText(text) {
  * @returns {Object|null} Parsed expense object, or null on failure
  */
 function extractExpenseFromImage(base64Image, mimeType) {
+  const defaultCurrency = typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_CURRENCY ? CONFIG.DEFAULT_CURRENCY : 'ARS';
   const prompt = typeof getExtractionSystemPrompt === 'function'
-    ? getExtractionSystemPrompt()
+    ? getExtractionSystemPrompt(undefined, defaultCurrency)
     : EXTRACTION_SYSTEM_PROMPT;
 
   return callGemini({
@@ -298,6 +300,7 @@ function extractExpenseFromImage(base64Image, mimeType) {
     generationConfig: { temperature: 0.1 }
   });
 }
+
 
 
 // ─── Expense Schema Validator & Category Rules Engine ──────────────
@@ -424,8 +427,12 @@ function validateExpense(parsed) {
   // amount: must be a positive number, capped at 100 million
   if (typeof parsed.amount !== 'number' || isNaN(parsed.amount) || parsed.amount <= 0 || parsed.amount > 1e8) return null;
 
-  // currency: must be exactly 3 uppercase letters (ISO 4217)
+  // currency: default missing/empty to CONFIG.DEFAULT_CURRENCY (or 'ARS'), must be 3 uppercase letters (ISO 4217)
+  if (!parsed.currency && typeof CONFIG !== 'undefined' && CONFIG.DEFAULT_CURRENCY) {
+    parsed.currency = CONFIG.DEFAULT_CURRENCY;
+  }
   if (typeof parsed.currency !== 'string' || !/^[A-Z]{3}$/.test(parsed.currency)) return null;
+
 
   // category: match case-insensitively against VALID_CATEGORIES or DYNAMIC_CATEGORIES, fallback to 'Other'
   if (typeof parsed.category === 'string') {

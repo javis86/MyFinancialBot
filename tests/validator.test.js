@@ -44,6 +44,17 @@ test('validateExpense rejects invalid currency code (not 3 uppercase letters)', 
   assert.equal(env.context.validateExpense({ amount: 10, currency: 'US1' }), null);
 });
 
+test('validateExpense defaults missing or empty currency to CONFIG.DEFAULT_CURRENCY', () => {
+  const env = createGasEnvironment({});
+  const res1 = env.context.validateExpense({ amount: 100 });
+  assert.equal(res1.currency, 'ARS');
+
+  const env2 = createGasEnvironment({ DEFAULT_CURRENCY: 'EUR' });
+  const res2 = env2.context.validateExpense({ amount: 100, currency: '' });
+  assert.equal(res2.currency, 'EUR');
+});
+
+
 test('validateExpense normalizes category case and defaults unknown to Other', () => {
   const env = createGasEnvironment({});
   const res1 = env.context.validateExpense({ amount: 10, currency: 'USD', category: 'food' });
