@@ -47,6 +47,13 @@ const CONFIG = {
   /** When 'true', logs full request payload to Logs sheet. Keep 'false' in production. */
   get DEBUG_LOGGING()       { return this.get('DEBUG_LOGGING') === 'true'; },
 
+  /** Default currency code for expenses (defaults to ARS if not set) */
+  get DEFAULT_CURRENCY()    {
+    const val = PropertiesService.getScriptProperties().getProperty('DEFAULT_CURRENCY');
+    return (val && val.trim()) ? val.trim() : 'ARS';
+  },
+
+
   /** Name of the sheet tab used as the transaction database */
   SHEET_NAME: 'Transactions',
 
