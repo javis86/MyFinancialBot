@@ -134,7 +134,9 @@ Follow these verified steps to deploy your own instance.
      - `SPREADSHEET_ID`: `<your_spreadsheet_id>`
      - `WEBHOOK_SECRET`: `<your_generated_secret>`
      - `ALLOWED_CHAT_ID`: `<your_telegram_chat_id>`
+     - `DEFAULT_CURRENCY`: `ARS` *(optional, defaults to `ARS` if unset)*
      - `DEBUG_LOGGING`: `false`
+
 
 5. Grant Initial Permissions:
    - Select the `doPost` function from the top toolbar dropdown and click ▶️ **Run**.
