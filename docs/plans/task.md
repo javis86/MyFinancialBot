@@ -55,8 +55,9 @@
 | 34 | Present design and get user approval | ✅ done |
 | 35 | Write design doc and commit | ✅ done |
 | — | **DEFAULT CURRENCY IMPLEMENTATION** ([plan](2026-09-27-default-currency-configuration.md)) | — |
-| 36 | Task 1: Add DEFAULT_CURRENCY to Config.gs and tests | ⬜ todo |
-| 37 | Task 2: Inject dynamic default currency into Prompt.gs and tests | ⬜ todo |
-| 38 | Task 3: Wire default currency into Code.gs extraction & validation | ⬜ todo |
-| 39 | Task 4: Update Documentation (.env.example, README.md, Design-spec.md) | ⬜ todo |
-| 40 | Task 5: Comprehensive Suite Verification & Final Commit | ⬜ todo |
+| 36 | Task 1: Add DEFAULT_CURRENCY to Config.gs and tests | ✅ done |
+| 37 | Task 2: Inject dynamic default currency into Prompt.gs and tests | ✅ done |
+| 38 | Task 3: Wire default currency into Code.gs extraction & validation | ✅ done |
+| 39 | Task 4: Update Documentation (.env.example, README.md, Design-spec.md) | ✅ done |
+| 40 | Task 5: Comprehensive Suite Verification & Final Commit | ✅ done |
+
