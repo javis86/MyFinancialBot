@@ -48,3 +48,9 @@
 | 28 | Create Category Rules Unit Test Suite (`tests/rules.test.js`) | ✅ done |
 | 29 | Implement Category Rules Engine (`src/Code.gs`) | ✅ done |
 | 30 | End-to-End Verification & Documentation Update | ✅ done |
+| — | **DEFAULT CURRENCY CONFIGURATION** | — |
+| 31 | Explore project context & analyze default currency configuration requirements | ✅ done |
+| 32 | Ask clarifying questions for configurable default currency | ✅ done |
+| 33 | Propose 2-3 approaches with trade-offs | ✅ done |
+| 34 | Present design and get user approval | 🔄 in_progress |
+| 35 | Write design doc and commit | ⬜ todo |
