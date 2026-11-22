@@ -41,7 +41,7 @@
                                                                ▼
                                                    ┌────────────────────────┐
                                                    │   Google Gemini API    │
-                                                   │   (gemini-2.5-flash)   │
+                                                   │ (gemini-3.5-flash-lite)│
                                                    └────────────────────────┘
                                                                │
                                                                ▼
@@ -97,7 +97,7 @@ Follow these verified steps to deploy your own instance.
 1. Go to **[Google AI Studio](https://aistudio.google.com/)**.
 2. Click **Get API Key** → **Create API Key in new project**.
 3. Save the key (referred to as `GEMINI_API_KEY`).
-   > 💡 **Model Note**: Use `gemini-2.5-flash`. Models like `gemini-3.6-flash` or `gemini-2.0-flash` may experience capacity/demand issues or deprecation on free-tier keys.
+   > 💡 **Model Note**: Use `gemini-3.5-flash-lite`. Models like `gemini-2.5-flash`, `gemini-3.6-flash`, or `gemini-2.0-flash` may experience capacity/demand issues or deprecation on free-tier keys.
 
 ---
 

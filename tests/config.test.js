@@ -19,7 +19,7 @@ test('CONFIG.get throws descriptive error when property is missing', () => {
 test('CONFIG contains correct static configuration defaults', () => {
   const env = createGasEnvironment({});
   assert.equal(env.context.CONFIG.SHEET_NAME, 'Transactions');
-  assert.equal(env.context.CONFIG.GEMINI_MODEL, 'gemini-2.5-flash');
+  assert.equal(env.context.CONFIG.GEMINI_MODEL, 'gemini-3.5-flash-lite');
   assert.deepEqual(Array.from(env.context.CONFIG.COLUMNS), [
     'Timestamp', 'Date', 'Amount', 'Currency', 'Category', 'Merchant', 'Notes'
   ]);

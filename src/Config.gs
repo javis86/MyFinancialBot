@@ -59,9 +59,9 @@ const CONFIG = {
 
   /**
    * Gemini model to use.
-   * gemini-2.5-flash: fast, reliable, supports both text and vision (image), generous free tier.
+   * gemini-3.5-flash-lite: fast, reliable, supports both text and vision (image), available on free tier.
    */
-  GEMINI_MODEL: 'gemini-2.5-flash',
+  GEMINI_MODEL: 'gemini-3.5-flash-lite',
 
   /**
    * Expected column order in the Transactions sheet.
